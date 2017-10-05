@@ -54,7 +54,10 @@ int main(int argc, char *argv[]) {
     cout << endl;
     */
     Bson test(fileVector);
+
     //parse one by one
+    //TODO
 
     //dump content
+    std::cout << test.next()->dump();
 }

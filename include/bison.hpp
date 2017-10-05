@@ -1,4 +1,5 @@
 #include <vector>
+#include <string>
 
 /* {"hello":[1, "two", 3.0]}
 BsonObj{
@@ -46,25 +47,46 @@ namespace BSON{
 }
 
 class BsonObj {
+public:
     BSON::type type;
     //todo test with bigger files
     virtual std::string dump() = 0;
+    BsonObj* next();
+private:
+    BsonObj* obj;
 };
 
-class BsonArray: BsonObj{
-    BsonArray(char* buff);
+class BsonArray: public BsonObj{
+public:
+    BsonArray() = delete;
+    BsonArray(char*& buff);
     BSON::type type = BSON::ARR;
     std::vector<BsonObj*> values;
     virtual std::string dump();
 };
 
-class BsonMap: BsonObj{
-    BsonMap(char* buff);
+class BsonMap: public BsonObj{
+public:
+    BsonMap() = delete;
+    BsonMap(char*& buff);
     BSON::type type = BSON::EMB_DOC;
     //std::map is ordered alphabeticaly nothing says that in the spec
-    std::vector<std::string*> keys;
-    std::vector<BsonObj*> values;
     virtual std::string dump();
+private:
+    std::vector<std::string> keys;
+    std::vector<BsonObj*> values;
+};
+
+class BsonString: public BsonObj{
+public:
+    BsonString() = delete;
+    BsonString(char*& buff, int32_t size);
+    BSON::type type = BSON::STRING;
+    virtual std::string dump();
+    std::string get();
+private:
+    std::string str;
+
 };
     
 
@@ -72,9 +94,8 @@ class BsonMap: BsonObj{
 class Bson {
 public:
     Bson() = delete;
-    Bson(const std::vector<char>& vect);
+    Bson(std::vector<char>& vect);
     BsonObj* next();
-
 private:
     BsonObj *obj = nullptr;
 };
