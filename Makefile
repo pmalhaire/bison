@@ -8,9 +8,9 @@ bison: build/bison
 
 build/bison: src/main.cpp src/bison.cpp include/bison.hpp
 	mkdir -p build
-	g++ -Wall -std=c++14 -Iinclude src/bison.cpp src/main.cpp -o $(basename $@)
+	g++ -Wall -std=c++14 -g -Iinclude src/bison.cpp src/main.cpp -o $(basename $@)
 
-test: bison unit_test sample_tests
+test: bison unit_test sample_test
 
 unit_test: bison $(unit_tests)
 
