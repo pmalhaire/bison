@@ -2,24 +2,6 @@
 #include <string>
 #include <ctime>
 
-/* {"hello":[1, "two", 3.0]}
-BsonObj{
-    type dict
-    size 
-    elements [
-        BsonObj
-        { 
-            type key
-            value "hello"
-        },
-        BsonObj
-        {
-            type array
-        }
-    ]
-}
-
-*/
 enum class BSON_TYPE : unsigned char{
         DOC             = 0x00,  // BSON Document. 
         DOUBLE          = 0x01,  //"\x01" e_name double 	64-bit binary floating point
