@@ -47,12 +47,16 @@ enum class BSON_TYPE : unsigned char{
 
 class BsonObj {
 public:
+    BsonObj() = delete;
+    BsonObj(char*& buff);
     BSON_TYPE type;
+    std::string name;
     //todo test with bigger files
     virtual std::string dump() = 0;
     BsonObj* next();
+    void setNext(BsonObj* obj);
 private:
-    BsonObj* obj;
+    BsonObj* _next = nullptr;
 };
 
 class BsonArray: public BsonObj{
@@ -64,24 +68,12 @@ public:
     virtual std::string dump();
 };
 
-class BsonMap: public BsonObj{
-public:
-    BsonMap() = delete;
-    BsonMap(char*& buff);
-    BSON_TYPE type = BSON_TYPE::EMB_DOC;
-    //std::map is ordered alphabeticaly nothing says that in the spec
-    virtual std::string dump();
-private:
-    std::vector<std::string> keys;
-    std::vector<BsonObj*> values;
-};
-
 class BsonString: public BsonObj{
 public:
     BsonString() = delete;
-    BsonString(char*& buff, int32_t size);
+    BsonString(char*& buff);
     BSON_TYPE type = BSON_TYPE::STRING;
-    virtual std::string dump();
+    std::string dump();
     std::string get();
 private:
     std::string str;
@@ -93,7 +85,7 @@ public:
     BsonInt32() = delete;
     BsonInt32(char*& buff);
     BSON_TYPE type = BSON_TYPE::INT32;
-    virtual std::string dump();
+    std::string dump();
     int32_t get();
 private:
     int32_t val;
@@ -151,7 +143,7 @@ public:
     BsonObjID(char*& buff);
     BSON_TYPE type = BSON_TYPE::OBJ_ID;
     std::string dump();
-    const int fixed_len = 21;
+    const int fixed_len = 12;
     //std::time_t get();
 private:
     std::string name;
@@ -159,11 +151,13 @@ private:
 };
 
 
-class Bson {
+class Bson{
 public:
     Bson() = delete;
+    ~Bson();
     Bson(std::vector<char>& vect);
-    BsonObj* next();
+    std::string dump();
+    BsonObj* getObj();
 private:
     BsonObj *obj = nullptr;
 };

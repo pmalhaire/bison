@@ -59,5 +59,5 @@ int main(int argc, char *argv[]) {
     //TODO
 
     //dump content
-    std::cout << test.next()->dump();
+    std::cout << test.dump();
 }

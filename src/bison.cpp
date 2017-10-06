@@ -23,7 +23,12 @@ char read<char>(char*& c, int32_t s) {
 
 template <>
 int32_t read<int32_t>(char*& c, int32_t) {
-    int32_t v = static_cast<int32_t>(*c);
+    int32_t v;
+    //could be done a nicer way but I had padding issues this way is working
+    char* p = (char*)&v;
+    for (int i=0; i < 4; i++) {
+        *(p+i) = *(c+i);
+    }
     c+=4;
     return v;
 };
@@ -49,19 +54,58 @@ std::string read<std::string>(char*& c, int32_t s) {
         str = std::string(c);
         c += str.size() + 1; //string size + \0
     } else {
-        int32_t s = read<int32_t>(c);
-        c += 4;
-        str = std::string(c, s);
-        c += s;
+        //size including '\0' end char
+        int32_t size = read<int32_t>(c);
+        str = std::string(c, size-1);
+        //std::string gives the size without '\0' so size-1
+        if ( (size-1) != str.size() ) {
+            std::cerr << "fatal wrong string size for \""<< str <<"\" expected:" << size << " got:"<< str.size()+1 << std::endl;
+            exit(1);
+        } 
+        c += size-1;
+        BSON_TYPE type = static_cast<BSON_TYPE>(read<char>(c));
+        if (type != BSON_TYPE::DOC ) {
+            std::cerr << "fatal invalid string for " << std::endl 
+            <<"\""<< str << "\"" << std::endl << "size" << size
+            <<" missing '\\0' end char:" << std::hex << (int) type << std::endl;
+            exit(1);
+        }
     }
     return str;
 };
 
+BsonObj* newBsonObj(char*& buff) {
+    BSON_TYPE type = static_cast<BSON_TYPE>(read<char>(buff));
+    if ( type == BSON_TYPE::DOC ) return nullptr;
+
+    switch (type) {
+        case BSON_TYPE::DOUBLE : return new BsonDouble(buff);
+        case BSON_TYPE::STRING : return new BsonString(buff);
+        case BSON_TYPE::INT32  : return new BsonInt32(buff);
+        case BSON_TYPE::INT64  : return new BsonInt64(buff);
+        case BSON_TYPE::UINT64 : return new BsonUint64(buff);
+        case BSON_TYPE::TIME   : return new BsonTime(buff);
+        case BSON_TYPE::OBJ_ID : return new BsonObjID(buff);
+
+        case BSON_TYPE::UNDEF :{
+            break;
+        }
+        case BSON_TYPE::NULL_VALUE : {
+            break;
+        }
+        default : {
+            //TEMPORARY WHILE CODING
+            std::cerr << "fatal type:" << std::hex << (int) type << " not implemented"  << std::endl;
+            exit(1);
+        }
+    }
+    return nullptr;
+}
 
 Bson::Bson(std::vector<char>& vect) {
         char* start = vect.data();
         char* buff = start;
-        BsonObj* current = obj;
+        BsonObj* current = nullptr;
         //document size \x00
         int32_t size = read<int32_t>(buff);
 
@@ -71,22 +115,69 @@ Bson::Bson(std::vector<char>& vect) {
         } 
 
         //read first
-        obj = new BsonMap(buff);
+        obj = newBsonObj(buff);
 
         if (obj == nullptr) {
             std::cerr << "fatal could not read bson file" << std::endl;
             exit(1);
         }
 
+        current = obj;
         //read more if needed
-        while ( buff-start < vect.size())
+        while ( buff-start < vect.size() )
         {
-            current = new BsonMap(buff);
-            current = current->next();
+            BsonObj* temp = newBsonObj(buff);
+            
+            //end of document but there is maybe more data
+            if ( temp == nullptr) {
+                if (buff-start >= vect.size()) {
+                    break;
+                }
+                int32_t size = read<int32_t>(buff);
+                // size is the size of the next document
+                // (buff-start) is the already parsed data
+                // - 4 is the size of the size we just read from the next obj
+                if ( (size + (buff-start) - 4) > vect.size()){
+                    std::cerr << "fatal incomplete continuing bson file" 
+                    << " needed size " << (size+(buff-start)) 
+                    << " vector size " << vect.size()
+                    << std::endl;
+                    exit(1);
+                } 
+        
+                continue;
+            }
+            current->setNext(temp);
+            current = temp;
         }
 };
 
-BsonObj* Bson::next()
+Bson::~Bson(){
+    std::vector<BsonObj*> toDelete;
+    BsonObj* current = this->getObj();
+    while (current!= nullptr) {
+        toDelete.push_back(current);
+        current = current->next();
+    }
+    for (BsonObj* obj: toDelete) {
+        delete obj;
+    }
+}
+
+std::string Bson::dump() {
+    std::string str = "{\n";
+    BsonObj* obj = getObj();
+    str += obj->dump();
+    while( (obj=obj->next()) ) 
+    {
+        str.append(",\n");
+        str.append(obj->dump());
+    }
+    str.append("\n}\n");
+    return str;
+}
+
+BsonObj* Bson::getObj()
 {
     if (obj == nullptr) {
         std::cerr << "fatal Bson object not initialized" << std::endl;
@@ -95,113 +186,42 @@ BsonObj* Bson::next()
     return obj;
 }
 
-BsonObj* BsonObj::next()
-{
-    if (obj == nullptr) {
-        std::cerr << "fatal BsonObj object not initialized" << std::endl;
-        exit(1);
-    }
-    return obj;
+void BsonObj::setNext(BsonObj* obj){
+    _next = obj;
 }
 
-BsonArray::BsonArray(char*& buff) {
+BsonObj* BsonObj::next()
+{
+    return _next;
+}
 
-};
+BsonArray::BsonArray(char*& buff):BsonObj(buff){
+    //TODO IMPLEMENT
+}
 
 std::string BsonArray::dump() {
     return "not implemented yet";
-};
+}
 
-BsonMap::BsonMap(char*& buff) {
-    BSON_TYPE type = static_cast<BSON_TYPE>(read<char>(buff));
-    while ( type != BSON_TYPE::DOC )
-    {
-        std::string str = read<std::string>(buff);
-        keys.emplace_back(str);
-        switch (type) {
-            case BSON_TYPE::DOUBLE : {
-                values.push_back(new BsonDouble(buff));
-                break;
-            }
-            case BSON_TYPE::STRING : {
-                int32_t size = read<int32_t>(buff);
-                //fix -1
-                BsonString* s = new BsonString(buff,-1);
-                if (size != s->get().size()+1) {
-                    std::cerr << "fatal wrong string size" << std::endl;
-                    exit(1);
-                }
-                values.push_back(s);
-                break;
-            }
-            case BSON_TYPE::INT32   : {
-                values.push_back(new BsonInt32(buff));
-                break;
-            }
-            case BSON_TYPE::INT64   : {
-                values.push_back(new BsonInt64(buff));
-                break;
-            }
-            case BSON_TYPE::UINT64   : {
-                values.push_back(new BsonUint64(buff));
-                break;
-            }
-            case BSON_TYPE::TIME    : {
-                values.push_back(new BsonTime(buff));
-                break;
-            }
-            case BSON_TYPE::OBJ_ID  : {
-                BsonObjID* id = new BsonObjID(buff);
-                std::cout << id->dump() << std::endl;
-                break;
-            }
-            case BSON_TYPE::UNDEF :{
-                break;
-            }
-            case BSON_TYPE::NULL_VALUE : {
-                break;
-            }
-            default : {
-                //TEMPORARY WHILE CODING
-                std::cerr << "fatal type:" << std::hex << (int) type << " not implemented"  << std::endl;
-                exit(1);
-            }
-        }
-        type = static_cast<BSON_TYPE>(read<char>(buff));
-    }
-};
 
-std::string BsonMap::dump(){
-    std::string s;
-    s+="{\n";
-    if(keys.size() != values.size()){
-        std::cerr << "fatal error map size is invalid" << std::endl;
-        exit(1);
-    }
-    for (int i=0; i<keys.size(); i++) {
-        s.append("\"");
-        s.append(keys[i]);
-        s.append("\" : ");
-        s.append(values[i]->dump());
-        s.append(" , ");
-    }
-    s+=("\n}\n");
-    return s;
-};
 
-BsonString::BsonString(char*& buff,int32_t s){
-    str = read<std::string>(buff,s);
+BsonObj::BsonObj(char*& buff){
+    name = read<std::string>(buff);
+}
+
+BsonString::BsonString(char*& buff):BsonObj(buff) {
+    str = read<std::string>(buff,1);
 }
 
 std::string BsonString::dump() {
-    return "\""+str+"\"";
+    return "\""+name+"\":\""+str+"\"";
 }
 
 std::string BsonString::get() {
     return str;
 }
 
-BsonInt32::BsonInt32(char*& buff) {
+BsonInt32::BsonInt32(char*& buff):BsonObj(buff) {
     val = read<int32_t>(buff);
 }
 
@@ -213,7 +233,7 @@ int32_t BsonInt32::get() {
     return val;
 }
 
-BsonInt64::BsonInt64(char*& buff){
+BsonInt64::BsonInt64(char*& buff):BsonObj(buff){
     val = read<int64_t>(buff);
 }
 
@@ -225,7 +245,7 @@ int64_t BsonInt64::get() {
     return val;
 }
 
-BsonUint64::BsonUint64(char*& buff){
+BsonUint64::BsonUint64(char*& buff):BsonObj(buff){
     val = read<uint64_t>(buff);
 }
 
@@ -238,7 +258,7 @@ uint64_t BsonUint64::get() {
 }
 
 
-BsonDouble::BsonDouble(char*& buff){
+BsonDouble::BsonDouble(char*& buff):BsonObj(buff){
     val = read<double>(buff);
 }
 
@@ -250,7 +270,7 @@ double BsonDouble::get() {
     return val;
 }
 
-BsonTime::BsonTime(char*& buff){
+BsonTime::BsonTime(char*& buff):BsonObj(buff){
     val = std::time_t(read<int64_t>(buff));
 }
 
@@ -262,7 +282,7 @@ std::time_t BsonTime::get() {
     return val;
 }
 
-BsonObjID::BsonObjID(char*& buff){
+BsonObjID::BsonObjID(char*& buff):BsonObj(buff){
     for (int i = 0 ; i<fixed_len ; i++){
         val.emplace_back(read<char>(buff));
     }
