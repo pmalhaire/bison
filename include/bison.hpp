@@ -49,6 +49,7 @@ class BsonObj {
 public:
     BsonObj() = delete;
     BsonObj(char*& buff);
+    virtual ~BsonObj(){};
     BSON_TYPE type;
     std::string name;
     //todo test with bigger files
