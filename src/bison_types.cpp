@@ -82,7 +82,7 @@ namespace BSON{
             case BSON_TYPE::UINT64 : return new BsonUint64(buff);
             case BSON_TYPE::TIME   : return new BsonTime(buff);
             case BSON_TYPE::OBJ_ID : return new BsonObjID(buff);
-
+            case BSON_TYPE::ARR    : return new BsonDoc(buff);
             case BSON_TYPE::UNDEF :{
                 break;
             }
@@ -98,16 +98,6 @@ namespace BSON{
         return nullptr;
     }
 }
-
-BsonArray::BsonArray(char*& buff):BsonObj(buff){
-    //TODO IMPLEMENT
-}
-
-std::string BsonArray::dump() {
-    return "not implemented yet";
-}
-
-
 
 BsonObj::BsonObj(char*& buff){
     name = read<std::string>(buff);
@@ -153,7 +143,7 @@ BsonDoc::BsonDoc(char*& buff, size_t buff_size) {
     _obj = BSON::parse(buff);
 
     if (_obj == nullptr) {
-        std::cerr << "fatal could not read bson file" << std::endl;
+        std::cerr << "fatal could not read bson document" << std::endl;
         exit(1);
     }
 
@@ -182,6 +172,34 @@ BsonDoc::BsonDoc(char*& buff, size_t buff_size) {
     }
 }
 
+BsonDoc::BsonDoc(char*& buff):BsonObj(buff) {
+    char* start = buff;
+    BsonObj* current = nullptr;
+    //document size
+
+    int32_t size = read<int32_t>(buff);
+
+    //read first
+    _obj = BSON::parse(buff);
+
+    if (_obj == nullptr) {
+        std::cerr << "fatal could not read bson document" << std::endl;
+        exit(1);
+    }
+
+    current = _obj;
+    //read more if needed
+    while ( buff-start<size )
+    {
+        BsonObj* temp = BSON::parse(buff);
+        if ( temp == nullptr) { 
+            break;
+        }
+        current->setNext(temp);
+        current = temp;
+    }
+}
+
 BsonDoc::~BsonDoc(){
     std::vector<BsonObj*> toDelete;
     BsonObj* obj = get();
@@ -196,7 +214,14 @@ BsonDoc::~BsonDoc(){
 }
 
 std::string BsonDoc::dump() {
-    std::string str = "{\n";
+    std::string str;
+    //case of an embeded document
+    //TODO check this means a null name won't work
+    //there may be a bug
+    if (name.size() > 0 ) {
+        str += "\""+name+"\" : ";
+    }
+    str += "{\n";
     BsonObj* obj = get();
     str += obj->dump();
     while( (obj=obj->next()) ) 
@@ -210,14 +235,6 @@ std::string BsonDoc::dump() {
 
 BsonObj* BsonDoc::get(){
     return _obj;
-}
-
-BsonDoc* BsonDoc::next(){
-    return _next;
-}
-
-void BsonDoc::setNext(BsonDoc* next){
-    _next = next;
 }
 
 BsonInt32::BsonInt32(char*& buff):BsonObj(buff) {
@@ -262,7 +279,7 @@ BsonDouble::BsonDouble(char*& buff):BsonObj(buff){
 }
 
 std::string BsonDouble::dump() {
-    return std::to_string(val);
+    return "\""+name+"\":\""+std::to_string(val);
 }
 
 double BsonDouble::get() {

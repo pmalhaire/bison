@@ -1,4 +1,4 @@
-unit_tests = hello timestamp
+unit_tests = hello id array
 
 sample_tests = mongodump
 

@@ -29,8 +29,8 @@ enum class BSON_TYPE : unsigned char{
 
 class BsonObj {
 public:
-    BsonObj() = delete;
-    BsonObj(char*& buff);
+    BsonObj(){};          // use for document (not embeded)
+    BsonObj(char*& buff); // compute the name at construction
     virtual ~BsonObj(){};
     BSON_TYPE type;
     std::string name;
@@ -46,18 +46,16 @@ namespace BSON{
     BsonObj* parse(char*& buff);
 }
 
-class BsonDoc{
+class BsonDoc : public BsonObj{
 public:
     BsonDoc() = delete;
     BsonDoc(char*& buff, size_t buff_size);
+    BsonDoc(char*& buff);
     ~BsonDoc();
     BsonObj* get();
     std::string dump();
-    BsonDoc* next();
-    void setNext(BsonDoc* next);
 private:
     BsonObj* _obj = nullptr;
-    BsonDoc* _next = nullptr;
 };
 
 class BsonInt32: public BsonObj{
@@ -138,16 +136,4 @@ public:
     //std::time_t get();
 private:
     std::vector<char> val;
-};
-
-
-class BsonArray: public BsonObj{
-public:
-    BsonArray() = delete;
-    BsonArray(char*& buff);
-    BSON_TYPE type = BSON_TYPE::ARR;
-    std::string dump();
-
-private:
-    std::vector<BsonObj*> values;
 };

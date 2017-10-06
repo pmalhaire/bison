@@ -13,21 +13,21 @@ Bson::Bson(std::vector<char>& vect) {
 };
 
 Bson::~Bson(){
-    std::vector<BsonDoc*> toDelete;
-    BsonDoc* doc = getDoc();
+    std::vector<BsonObj*> toDelete;
+    BsonObj* doc = getDoc();
     toDelete.push_back(doc);
     while( (doc=doc->next()) ) {
         toDelete.push_back(doc);
     }
 
-    for (const BsonDoc* d: toDelete) {
+    for (const BsonObj* d: toDelete) {
         delete d;
     }
 }
 
 std::string Bson::dump() {
     std::string str;
-    BsonDoc* doc = getDoc();
+    BsonObj* doc = getDoc();
     if (doc != nullptr) {
         str += doc->dump();
         while( (doc=doc->next()) ) 
