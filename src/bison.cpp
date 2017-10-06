@@ -226,7 +226,7 @@ BsonInt32::BsonInt32(char*& buff):BsonObj(buff) {
 }
 
 std::string BsonInt32::dump() {
-    return std::to_string(val);
+    return "\""+name+"\":\""+std::to_string(val);
 }
 
 int32_t BsonInt32::get() {
@@ -238,7 +238,7 @@ BsonInt64::BsonInt64(char*& buff):BsonObj(buff){
 }
 
 std::string BsonInt64::dump() {
-    return std::to_string(val);
+    return "\""+name+"\":\""+std::to_string(val);
 }
 
 int64_t BsonInt64::get() {
@@ -250,7 +250,7 @@ BsonUint64::BsonUint64(char*& buff):BsonObj(buff){
 }
 
 std::string BsonUint64::dump() {
-    return std::to_string(val);
+    return "\""+name+"\":\""+std::to_string(val);
 }
 
 uint64_t BsonUint64::get() {
