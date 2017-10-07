@@ -6,12 +6,12 @@
 //here we use char* reference to move through the pointers
 //once the buff is read the pointer is incremented for the next read
 template<typename T>
-T read(char*& c, int32_t s = -1) {
+T read(char*& c) {
     return T();
 };
 
 template<>
-char read<char>(char*& c, int32_t s) {
+char read<char>(char*& c) {
     char v = *c;
     c++;
     return v;
@@ -20,37 +20,36 @@ char read<char>(char*& c, int32_t s) {
 //taking a bit of risks here we expect the machine to be little endian
 //TODO add compile time check of endianest
 template <>
-int32_t read<int32_t>(char*& c, int32_t) {
+int32_t read<int32_t>(char*& c) {
     int32_t v = *reinterpret_cast<int32_t*>(c);
     c+=4;
     return v;
 };
 
 template <>
-int64_t read<int64_t>(char*& c, int32_t) {
+int64_t read<int64_t>(char*& c) {
     int64_t v = *reinterpret_cast<int64_t*>(c);
     c+= 8;
     return v;
 };
 
 template <>
-uint64_t read<uint64_t>(char*& c, int32_t) {
+uint64_t read<uint64_t>(char*& c) {
     uint64_t v = *reinterpret_cast<uint64_t*>(c);
     c+= 8;
     return v;
 };
 
 template <>
-double read<double>(char*& c, int32_t) {
+double read<double>(char*& c) {
     double v = *reinterpret_cast<double*>(c);
     c+= 8;
     return v;
 };
 
-template <>
-std::string read<std::string>(char*& c, int32_t s) {
+std::string read_string(char*& c, bool has_size = false) {
     std::string str;
-    if (s == -1) {
+    if (!has_size) {
         str = std::string(c);
         c += str.size() + 1; //string size + \0
     } else {
@@ -59,7 +58,8 @@ std::string read<std::string>(char*& c, int32_t s) {
         str = std::string(c, size-1);
         //std::string gives the size without '\0' so size-1
         if ( (size-1) != str.size() ) {
-            std::cerr << "fatal wrong string size for \""<< str <<"\" expected:" << size << " got:"<< str.size()+1 << std::endl;
+            std::cerr << "fatal wrong string size for \""<< str 
+            <<"\" expected:" << size << " got:"<< str.size()+1 << std::endl;
             exit(1);
         } 
         c += size-1;
@@ -137,7 +137,7 @@ namespace BSON{
 }
 
 BsonObj::BsonObj(char*& buff){
-    name = read<std::string>(buff);
+    name = read_string(buff);
 }
 
 BsonObj* BsonObj::next(){
@@ -153,7 +153,7 @@ std::string BsonObj::dump_one(std::string str){
 }
 
 BsonString::BsonString(char*& buff):BsonObj(buff) {
-    str = read<std::string>(buff,1);
+    str = read_string(buff,true);
 }
 
 std::string BsonString::dump() {
