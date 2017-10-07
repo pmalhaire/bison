@@ -9,17 +9,17 @@
 
 class BsonObj {
 public:
-    BsonObj(){};                        // use for document (not embeded)
-    BsonObj(char*& buff);               // compute the name at construction
+    BsonObj(){};                         // use for document (not embeded)
+    BsonObj(char*& buff);                // compute the name at construction
     virtual ~BsonObj(){};
-    BSON_TYPE type;                     // get the type needed to access the real type
-    std::string name;                   // name of the field or "" for the initial document
+    BSON_TYPE type;                      // get the type needed to access the real type
+    std::string name;                    // name of the field or "" for the initial document
     //todo test with bigger files
-    virtual std::string dump() = 0;     // use to get a human readable string representing the object                 
+    virtual std::string dump() = 0;      // use to get a human readable string representing the object                 
     BsonObj* next();
     void setNext(BsonObj* obj);
-    std::string dump_one(std::string);  // small helper for type with one value
-    static BsonObj* Parse(char*& buff); // factory used to create objects
+    std::string dump_one(std::string);   // small helper for type with one value
+    static BsonObj* Parse(char*& buff);  // factory used to create objects
 private:
     BsonObj* _next = nullptr;
 };
@@ -192,7 +192,7 @@ public:
     std::string dump();
     std::time_t get();
 private:
-    std::time_t _val;
+    std::time_t _time;
 };
 
 class BsonID: public BsonObj{

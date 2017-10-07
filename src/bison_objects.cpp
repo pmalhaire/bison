@@ -309,15 +309,15 @@ double BsonDouble::get() {
 }
 
 BsonTime::BsonTime(char*& buff):BsonObj(buff){
-    _val = std::time_t(read<int64_t>(buff));
+    _time = std::time_t(read<int64_t>(buff));
 }
 
 std::string BsonTime::dump() {
-    return dump_one(std::string(std::asctime(std::gmtime(&_val))));
+    return dump_one(std::string(std::asctime(std::gmtime(&_time))));
 }
 
 std::time_t BsonTime::get() {
-    return _val;
+    return _time;
 }
 
 BsonID::BsonID(char*& buff):BsonObj(buff),_val(read_hex(buff,fixed_len)){}
