@@ -220,7 +220,7 @@ std::string BsonDoc::dump() {
     //TODO check this means a null name won't work
     //there may be a bug
     if (name.size() > 0 ) {
-        str += "\""+name+"\" : ";
+        str += "\""+name+"\" : \n";
     }
     str += "{\n";
     BsonObj* obj = get();
