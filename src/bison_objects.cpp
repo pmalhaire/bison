@@ -4,68 +4,71 @@
 
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
-namespace BSON{
-    BsonObj* parse(char*& buff) {
-        BSON_TYPE type = static_cast<BSON_TYPE>(read<char>(buff));
+BsonObj* BsonObj::Parse(char*& buff) {
+    BSON_TYPE type = static_cast<BSON_TYPE>(read<char>(buff));
 
-        switch (type) {
-            case BSON_TYPE::DOC         : return nullptr; //00 indicates the end of the document
-            //DOC is not present here since we are in obj
-            case BSON_TYPE::DOUBLE      : return new BsonDouble(buff);
-            case BSON_TYPE::STRING      : return new BsonString(buff);
-            case BSON_TYPE::EMB_DOC     : return new BsonDoc(buff);
-            //here we can make it as an actual array
-            case BSON_TYPE::ARR         : return new BsonDoc(buff);
-            case BSON_TYPE::BIN         : {
-                //TEMPORARY WHILE CODING
-                std::cerr << "TODO implement BIN"  << std::endl;
-                exit(1);
-            }
-            case BSON_TYPE::UNDEF       : return new BsonUndef(buff);
-            case BSON_TYPE::OBJ_ID      : return new BsonObjID(buff);
-            case BSON_TYPE::BOOL        : return new BsonBool(buff);
-            case BSON_TYPE::TIME        : return new BsonTime(buff);
-            case BSON_TYPE::NULL_VALUE  : return new BsonNull(buff);
-            case BSON_TYPE::CSTRING     : {
-                //TEMPORARY WHILE CODING
-                std::cerr << "TODO implement CSTRING"  << std::endl;
-                exit(1);
-            }
-            case BSON_TYPE::DBPOINTER   : {
-                //TEMPORARY WHILE CODING
-                std::cerr << "TODO implement DBPOINTER"  << std::endl;
-                exit(1);
-            }
-            case BSON_TYPE::JS_CODE     : {
-                //TEMPORARY WHILE CODING
-                std::cerr << "TODO implement JS_CODE"  << std::endl;
-                exit(1);
-            }
-            case BSON_TYPE::SYMBOL      : {
-                //TEMPORARY WHILE CODING
-                std::cerr << "TODO implement SYMBOL"  << std::endl;
-                exit(1);
-            }
-            case BSON_TYPE::JS_S_CODE   : {
-                //TEMPORARY WHILE CODING
-                std::cerr << "TODO implement JS_S_CODE"  << std::endl;
-                exit(1);
-            }
-            case BSON_TYPE::INT32       : return new BsonInt32(buff);
-            case BSON_TYPE::UINT64      : return new BsonUint64(buff);
-            case BSON_TYPE::INT64       : return new BsonInt64(buff);
-            case BSON_TYPE::DEC128      : {
-                //TEMPORARY WHILE CODING
-                std::cerr << "TODO implement DEC128"  << std::endl;
-                exit(1);
-            }
-            case BSON_TYPE::MIN_KEY     : return new BsonMinKey(buff);
-            case BSON_TYPE::MAX_KEY     : return new BsonMaxKey(buff);
+    switch (type) {
+        case BSON_TYPE::DOC         : return nullptr; //00 indicates the end of the document
+        //DOC is not present here since we are in obj
+        case BSON_TYPE::DOUBLE      : return new BsonDouble(buff);
+        case BSON_TYPE::STRING      : return new BsonString(buff);
+        case BSON_TYPE::EMB_DOC     : return new BsonDoc(buff);
+        //here we can make it as an actual array
+        case BSON_TYPE::ARR         : return new BsonDoc(buff);
+        case BSON_TYPE::BIN         : {
+            //TEMPORARY WHILE CODING
+            std::cerr << "TODO implement BIN"  << std::endl;
+            exit(1);
         }
-        return nullptr;
+        case BSON_TYPE::UNDEF       : return new BsonUndef(buff);
+        case BSON_TYPE::OBJ_ID      : return new BsonObjID(buff);
+        case BSON_TYPE::BOOL        : return new BsonBool(buff);
+        case BSON_TYPE::TIME        : return new BsonTime(buff);
+        case BSON_TYPE::NULL_VALUE  : return new BsonNull(buff);
+        case BSON_TYPE::CSTRING     : {
+            //TEMPORARY WHILE CODING
+            std::cerr << "TODO implement CSTRING"  << std::endl;
+            exit(1);
+        }
+        case BSON_TYPE::DBPOINTER   : {
+            //TEMPORARY WHILE CODING
+            std::cerr << "TODO implement DBPOINTER"  << std::endl;
+            exit(1);
+        }
+        case BSON_TYPE::JS_CODE     : {
+            //TEMPORARY WHILE CODING
+            std::cerr << "TODO implement JS_CODE"  << std::endl;
+            exit(1);
+        }
+        case BSON_TYPE::SYMBOL      : {
+            //TEMPORARY WHILE CODING
+            std::cerr << "TODO implement SYMBOL"  << std::endl;
+            exit(1);
+        }
+        case BSON_TYPE::JS_S_CODE   : {
+            //TEMPORARY WHILE CODING
+            std::cerr << "TODO implement JS_S_CODE"  << std::endl;
+            exit(1);
+        }
+        case BSON_TYPE::INT32       : return new BsonInt32(buff);
+        case BSON_TYPE::UINT64      : return new BsonUint64(buff);
+        case BSON_TYPE::INT64       : return new BsonInt64(buff);
+        case BSON_TYPE::DEC128      : {
+            //TEMPORARY WHILE CODING
+            std::cerr << "TODO implement DEC128"  << std::endl;
+            exit(1);
+        }
+        case BSON_TYPE::MIN_KEY     : return new BsonMinKey(buff);
+        case BSON_TYPE::MAX_KEY     : return new BsonMaxKey(buff);
     }
+    std::cerr << "fatal type 0x" << std::hex << std::setfill('0') << std::setw(2) 
+    << (int) type << " is not in specification";
+    exit(1);
+    return nullptr;
 }
+
 
 BsonObj::BsonObj(char*& buff){
     name = read_string(buff);
@@ -84,15 +87,15 @@ std::string BsonObj::dump_one(std::string str){
 }
 
 BsonString::BsonString(char*& buff):BsonObj(buff) {
-    str = read_string(buff,true);
+    _str = read_string(buff,true);
 }
 
 std::string BsonString::dump() {
-    return dump_one("\""+str+"\"");
+    return dump_one("\""+_str+"\"");
 }
 
 std::string BsonString::get() {
-    return str;
+    return _str;
 }
 
 
@@ -112,7 +115,7 @@ BsonDoc::BsonDoc(char*& buff, size_t buff_size) {
     } 
 
     //read first
-    _obj = BSON::parse(buff);
+    _obj = BsonObj::Parse(buff);
 
     if (_obj == nullptr) {
         std::cerr << "fatal could not read bson document" << std::endl;
@@ -123,7 +126,7 @@ BsonDoc::BsonDoc(char*& buff, size_t buff_size) {
     //read more if needed
     while ( buff-start < buff_size )
     {
-        BsonObj* temp = BSON::parse(buff);
+        BsonObj* temp = BsonObj::Parse(buff);
         
         
         if ( temp == nullptr) {
@@ -152,7 +155,7 @@ BsonDoc::BsonDoc(char*& buff):BsonObj(buff) {
     int32_t size = read<int32_t>(buff);
 
     //read first
-    _obj = BSON::parse(buff);
+    _obj = BsonObj::Parse(buff);
 
     if (_obj == nullptr) {
         std::cerr << "fatal could not read bson document" << std::endl;
@@ -163,7 +166,7 @@ BsonDoc::BsonDoc(char*& buff):BsonObj(buff) {
     //read more if needed
     while ( buff-start<size )
     {
-        BsonObj* temp = BSON::parse(buff);
+        BsonObj* temp = BsonObj::Parse(buff);
         if ( temp == nullptr) { 
             break;
         }
@@ -234,12 +237,12 @@ std::string BsonMaxKey::dump() {
 }
 
 BsonBool::BsonBool(char*& buff):BsonObj(buff) {
-    val = read<char>(buff);
+    _val = read<char>(buff);
 }
 
 std::string BsonBool::dump() {
     std::string str;
-    if (val) {
+    if (_val) {
         str = dump_one("true");
     } else {
         str = dump_one("false");
@@ -248,80 +251,80 @@ std::string BsonBool::dump() {
 }
 
 bool BsonBool::get() {
-    return val;
+    return _val;
 }
 
 BsonInt32::BsonInt32(char*& buff):BsonObj(buff) {
-    val = read<int32_t>(buff);
+    _val = read<int32_t>(buff);
 }
 
 std::string BsonInt32::dump() {
-    return dump_one(std::to_string(val));
+    return dump_one(std::to_string(_val));
 }
 
 int32_t BsonInt32::get() {
-    return val;
+    return _val;
 }
 
 BsonInt64::BsonInt64(char*& buff):BsonObj(buff){
-    val = read<int64_t>(buff);
+    _val = read<int64_t>(buff);
 }
 
 std::string BsonInt64::dump() {
-    return dump_one(std::to_string(val));
+    return dump_one(std::to_string(_val));
 }
 
 int64_t BsonInt64::get() {
-    return val;
+    return _val;
 }
 
 BsonUint64::BsonUint64(char*& buff):BsonObj(buff){
-    val = read<uint64_t>(buff);
+    _val = read<uint64_t>(buff);
 }
 
 std::string BsonUint64::dump() {
-    return dump_one(std::to_string(val));
+    return dump_one(std::to_string(_val));
 }
 
 uint64_t BsonUint64::get() {
-    return val;
+    return _val;
 }
 
 
 BsonDouble::BsonDouble(char*& buff):BsonObj(buff){
-    val = read<double>(buff);
+    _val = read<double>(buff);
 }
 
 std::string BsonDouble::dump() {
-    return dump_one(std::to_string(val));
+    return dump_one(std::to_string(_val));
 }
 
 double BsonDouble::get() {
-    return val;
+    return _val;
 }
 
 BsonTime::BsonTime(char*& buff):BsonObj(buff){
-    val = std::time_t(read<int64_t>(buff));
+    _val = std::time_t(read<int64_t>(buff));
 }
 
 std::string BsonTime::dump() {
-    return dump_one(std::string(std::asctime(std::gmtime(&val))));
+    return dump_one(std::string(std::asctime(std::gmtime(&_val))));
 }
 
 std::time_t BsonTime::get() {
-    return val;
+    return _val;
 }
 
 BsonObjID::BsonObjID(char*& buff):BsonObj(buff){
     for (int i = 0 ; i<fixed_len ; i++){
-        val.emplace_back(read<char>(buff));
+        _val.emplace_back(read<char>(buff));
     }
 }
 
 std::string BsonObjID::dump(){
     std::stringstream ss;
-    for (char c: val) {
-        ss << std::hex << (int) static_cast<unsigned char>(c);
+    for (unsigned char c: _val) {
+        ss << std::hex << std::setfill('0') << std::setw(2) << (int) c;
     }
     return dump_one(ss.str());
 }

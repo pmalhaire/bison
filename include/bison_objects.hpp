@@ -19,13 +19,10 @@ public:
     BsonObj* next();
     void setNext(BsonObj* obj);
     std::string dump_one(std::string);  // small helper for type with one value
+    static BsonObj* Parse(char*& buff); // factory used to create objects
 private:
     BsonObj* _next = nullptr;
 };
-
-namespace BSON{
-    BsonObj* parse(char*& buff);
-}
 
 class BsonDoc : public BsonObj{
 public:
@@ -79,7 +76,7 @@ public:
     std::string dump();
     bool get();
 private:
-    bool val;
+    bool _val;
 
 };
 
@@ -91,7 +88,7 @@ public:
     std::string dump();
     int32_t get();
 private:
-    int32_t val;
+    int32_t _val;
 
 };
 
@@ -103,7 +100,7 @@ public:
     std::string dump();
     int64_t get();
 private:
-    int64_t val;
+    int64_t _val;
 };
 
 class BsonUint64: public BsonObj{
@@ -114,7 +111,7 @@ public:
     std::string dump();
     uint64_t get();
 private:
-    uint64_t val;
+    uint64_t _val;
 };
 
 class BsonDouble: public BsonObj{
@@ -125,7 +122,7 @@ public:
     std::string dump();
     double get();
 private:
-    double val;
+    double _val;
 };
 
 class BsonString: public BsonObj{
@@ -136,7 +133,7 @@ public:
     std::string dump();
     std::string get();
 private:
-    std::string str;
+    std::string _str;
 
 };
 
@@ -148,7 +145,7 @@ public:
     std::string dump();
     std::time_t get();
 private:
-    std::time_t val;
+    std::time_t _val;
 };
 
 class BsonObjID: public BsonObj{
@@ -160,7 +157,7 @@ public:
     const int fixed_len = 12;
     //std::time_t get();
 private:
-    std::vector<char> val;
+    std::vector<unsigned char> _val;
 };
 
 #endif // ndef BISON_OBJECTS_HPP
