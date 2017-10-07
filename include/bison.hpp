@@ -1,4 +1,7 @@
-#include "bison_types.hpp"
+#ifndef BISON_HPP
+#define BISON_HPP
+
+#include "bison_objects.hpp"
 
 #include <vector>
 
@@ -17,4 +20,4 @@ private:
     BsonDoc* _doc = nullptr;
 };
 
-
+#endif // ndef BISON_HPP

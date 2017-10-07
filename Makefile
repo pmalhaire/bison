@@ -1,17 +1,27 @@
-unit_tests = hello small id array time
+sources = $(addprefix src/, main.cpp bison.cpp bison_objects.cpp)
+headers = $(addprefix include/, bison.hpp bison_types.hpp bison_read_bytes.hpp bison_objects.hpp)
 
+unit_tests = hello small id array time
 sample_tests = mongodump
+
+DEBUG ?= 0
+ifeq ($(DEBUG), 1)
+	G_FLAG = -g 
+	BUILD_DIR = build/debug
+else
+    BUILD_DIR = build
+endif
 
 L1 = =========================================
 L2 = -----------------------------------------
 
-.PHONY: clean bison test unit_test sample_test $(unit_tests) $(sample_tests)
+.PHONY: clean debug bison test unit_test sample_test $(unit_tests) $(sample_tests)
 
-bison: build/bison
+bison: $(BUILD_DIR)/bison
 
-build/bison: src/main.cpp src/bison.cpp src/bison_types.cpp include/bison.hpp include/bison_types.hpp
-	mkdir -p build
-	g++ -Wall -std=c++14 -g -Iinclude src/bison_types.cpp src/bison.cpp src/main.cpp -o $(basename $@)
+$(BUILD_DIR)/bison: $(sources) $(headers)
+	@mkdir -p $(BUILD_DIR)
+	g++ -Wall -std=c++14 $(G_FLAG) -Iinclude $(sources) -o $(basename $@)
 
 test: bison unit_test sample_test
 
@@ -24,7 +34,7 @@ $(unit_tests):
 	@echo $(L1)
 	@echo "=     $@"
 	@echo $(L1)
-	@./build/bison $(addsuffix .bson, ./test/$@) #$(addsuffix .json, ./test/$@)
+	@./$(BUILD_DIR)/bison $(addsuffix .bson, ./test/$@) #$(addsuffix .json, ./test/$@)
 	@echo $(L2)
 
 
@@ -33,9 +43,9 @@ $(sample_tests):
 	@echo $(L1)
 	@echo "=     $@"
 	@echo $(L1)
-	@./build/bison $(addsuffix .bson, ./test/$@) #$(addsuffix .json, ./test/$@)
+	@./$(BUILD_DIR)/bison $(addsuffix .bson, ./test/$@) #$(addsuffix .json, ./test/$@)
 	@echo $(L2)
 
 
 clean:
-	@rm -rf ./build
+	rm -rf ./build
