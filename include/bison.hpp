@@ -16,8 +16,11 @@ public:
     Bson(std::vector<char>& vect);
     std::string dump();
     BsonDoc* getDoc();
+    void next();
 private:
     BsonDoc* _doc = nullptr;
+    std::vector<char>::iterator pos;
+    std::vector<char>& _vect;
 };
 
 #endif // ndef BISON_HPP

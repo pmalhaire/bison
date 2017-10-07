@@ -57,7 +57,9 @@ int main(int argc, char *argv[]) {
 
     //parse one by one
     //TODO
-
-    //dump content
-    std::cout << test.dump();
+    while(test.getDoc() != nullptr) {
+        //dump content
+        std::cout << test.dump();
+        test.next();
+    }
 }

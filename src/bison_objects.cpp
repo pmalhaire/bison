@@ -85,6 +85,7 @@ std::string BsonCString::get() {
 
 
 BsonDoc::BsonDoc(char*& buff, size_t buff_size) {
+    //TODO merge both constructors
     char* start = buff;
     BsonObj* current = nullptr;
     //document size
@@ -116,14 +117,14 @@ BsonDoc::BsonDoc(char*& buff, size_t buff_size) {
         
         if ( temp == nullptr) {
             //end of document but there is maybe an other document
-            if (buff-start < buff_size) {
+            /*if (buff-start < buff_size) {
                 BsonDoc* doc = new BsonDoc(buff,buff_size-(buff-start));
                 if (doc == nullptr){
                     std::cerr << "fatal could not read document" << std::endl;
                     exit(1);
                 }
                 setNext(doc);
-            }
+            }*/
             
             break;
         }
