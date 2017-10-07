@@ -69,26 +69,27 @@ std::string read<std::string>(char*& c, int32_t s) {
     }
     return str;
 };
+
 namespace BSON{
     BsonObj* parse(char*& buff) {
         BSON_TYPE type = static_cast<BSON_TYPE>(read<char>(buff));
         if ( type == BSON_TYPE::DOC ) return nullptr;
 
         switch (type) {
-            case BSON_TYPE::DOUBLE : return new BsonDouble(buff);
-            case BSON_TYPE::STRING : return new BsonString(buff);
-            case BSON_TYPE::INT32  : return new BsonInt32(buff);
-            case BSON_TYPE::INT64  : return new BsonInt64(buff);
-            case BSON_TYPE::UINT64 : return new BsonUint64(buff);
-            case BSON_TYPE::TIME   : return new BsonTime(buff);
-            case BSON_TYPE::OBJ_ID : return new BsonObjID(buff);
-            case BSON_TYPE::ARR    : return new BsonDoc(buff);
-            case BSON_TYPE::UNDEF :{
-                break;
-            }
-            case BSON_TYPE::NULL_VALUE : {
-                break;
-            }
+            case BSON_TYPE::DOUBLE      : return new BsonDouble(buff);
+            case BSON_TYPE::STRING      : return new BsonString(buff);
+            case BSON_TYPE::INT32       : return new BsonInt32(buff);
+            case BSON_TYPE::INT64       : return new BsonInt64(buff);
+            case BSON_TYPE::UINT64      : return new BsonUint64(buff);
+            case BSON_TYPE::TIME        : return new BsonTime(buff);
+            case BSON_TYPE::OBJ_ID      : return new BsonObjID(buff);
+            //here we can make it as an actual array
+            case BSON_TYPE::ARR         : return new BsonDoc(buff);
+            case BSON_TYPE::UNDEF       : return new BsonUndef(buff);
+            case BSON_TYPE::NULL_VALUE  : return new BsonNull(buff);
+            case BSON_TYPE::BOOL        : return new BsonBool(buff);
+            case BSON_TYPE::MIN_KEY     : return new BsonMinKey(buff);
+            case BSON_TYPE::MAX_KEY     : return new BsonMaxKey(buff);
             default : {
                 //TEMPORARY WHILE CODING
                 std::cerr << "fatal type:" << std::hex << (int) type << " not implemented"  << std::endl;
@@ -237,12 +238,54 @@ BsonObj* BsonDoc::get(){
     return _obj;
 }
 
+BsonNull::BsonNull(char*& buff):BsonObj(buff) {}
+
+std::string BsonNull::dump() {
+    return "\""+name+"\": null";
+}
+
+BsonUndef::BsonUndef(char*& buff):BsonObj(buff) {}
+
+std::string BsonUndef::dump() {
+    return "\""+name+"\": undef";
+}
+
+BsonMinKey::BsonMinKey(char*& buff):BsonObj(buff) {}
+
+std::string BsonMinKey::dump() {
+    return "\""+name+"\": min_key";
+}
+
+BsonMaxKey::BsonMaxKey(char*& buff):BsonObj(buff) {}
+
+std::string BsonMaxKey::dump() {
+    return "\""+name+"\": max_key";
+}
+
+BsonBool::BsonBool(char*& buff):BsonObj(buff) {
+    val = read<char>(buff);
+}
+
+std::string BsonBool::dump() {
+    std::string str = "\""+name+"\": ";
+    if (val) {
+        str += "true";
+    } else {
+        str += "false";
+    }
+    return str;
+}
+
+bool BsonBool::get() {
+    return val;
+}
+
 BsonInt32::BsonInt32(char*& buff):BsonObj(buff) {
     val = read<int32_t>(buff);
 }
 
 std::string BsonInt32::dump() {
-    return "\""+name+"\":\""+std::to_string(val);
+    return "\""+name+"\": "+std::to_string(val);
 }
 
 int32_t BsonInt32::get() {
@@ -254,7 +297,7 @@ BsonInt64::BsonInt64(char*& buff):BsonObj(buff){
 }
 
 std::string BsonInt64::dump() {
-    return "\""+name+"\":\""+std::to_string(val);
+    return "\""+name+"\": "+std::to_string(val);
 }
 
 int64_t BsonInt64::get() {
@@ -266,7 +309,7 @@ BsonUint64::BsonUint64(char*& buff):BsonObj(buff){
 }
 
 std::string BsonUint64::dump() {
-    return "\""+name+"\":\""+std::to_string(val);
+    return "\""+name+"\": "+std::to_string(val);
 }
 
 uint64_t BsonUint64::get() {
@@ -279,7 +322,7 @@ BsonDouble::BsonDouble(char*& buff):BsonObj(buff){
 }
 
 std::string BsonDouble::dump() {
-    return "\""+name+"\":\""+std::to_string(val);
+    return "\""+name+"\": "+std::to_string(val);
 }
 
 double BsonDouble::get() {
@@ -311,3 +354,5 @@ std::string BsonObjID::dump(){
     }
     return "\""+name+"\":"+ss.str();
 }
+
+
