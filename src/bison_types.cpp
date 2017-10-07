@@ -17,28 +17,32 @@ char read<char>(char*& c, int32_t s) {
     return v;
 };
 
+//taking a bit of risks here we expect the machine to be little endian
+//TODO add compile time check of endianest
 template <>
 int32_t read<int32_t>(char*& c, int32_t) {
-    int32_t v;
-    //could be done a nicer way but I had padding issues this way is working
-    char* p = (char*)&v;
-    for (int i=0; i < 4; i++) {
-        *(p+i) = *(c+i);
-    }
+    int32_t v = *reinterpret_cast<int32_t*>(c);
     c+=4;
     return v;
 };
 
 template <>
 int64_t read<int64_t>(char*& c, int32_t) {
-    int64_t v = static_cast<int64_t>(*c);
+    int64_t v = *reinterpret_cast<int64_t*>(c);
+    c+= 8;
+    return v;
+};
+
+template <>
+uint64_t read<uint64_t>(char*& c, int32_t) {
+    uint64_t v = *reinterpret_cast<uint64_t*>(c);
     c+= 8;
     return v;
 };
 
 template <>
 double read<double>(char*& c, int32_t) {
-    double v = static_cast<double>(*c);
+    double v = *reinterpret_cast<double*>(c);
     c+= 8;
     return v;
 };
@@ -171,7 +175,7 @@ BsonDoc::BsonDoc(char*& buff, size_t buff_size) {
     if (size > buff_size){
         std::cerr << "fatal incomplete bson file" 
         << " needed size " << size
-        << " vector size " << buff_size
+        << " buffer size " << buff_size
         << std::endl;
         exit(1);
     } 

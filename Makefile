@@ -1,8 +1,9 @@
-unit_tests = hello small id array
+unit_tests = hello small id array time
 
 sample_tests = mongodump
 
-L = =====================================
+L1 = =========================================
+L2 = -----------------------------------------
 
 .PHONY: clean bison test unit_test sample_test $(unit_tests) $(sample_tests)
 
@@ -20,20 +21,20 @@ sample_test: bison $(sample_tests)
 
 $(unit_tests):
 	@echo
-	@echo $(L)
+	@echo $(L1)
 	@echo "=     $@"
-	@echo $(L)
+	@echo $(L1)
 	@./build/bison $(addsuffix .bson, ./test/$@) #$(addsuffix .json, ./test/$@)
-	@echo $(L)
+	@echo $(L2)
 
 
 $(sample_tests):
 	@echo
-	@echo $(L)
+	@echo $(L1)
 	@echo "=     $@"
-	@echo $(L)
+	@echo $(L1)
 	@./build/bison $(addsuffix .bson, ./test/$@) #$(addsuffix .json, ./test/$@)
-	@echo $(L)
+	@echo $(L2)
 
 
 clean:
