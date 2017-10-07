@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <vector>
 
 //here we use char* reference to move through the pointers
 //once the buff is read the pointer is incremented for the next read
@@ -14,6 +15,14 @@ char read<char>(char*& c) {
     c++;
     return v;
 };
+
+template<>
+unsigned char read<unsigned char>(char*& c) {
+    unsigned char v = *reinterpret_cast<unsigned char*>(c);
+    c++;
+    return v;
+};
+
 
 //taking a bit of risks here we expect the machine to be little endian
 //TODO add compile time check of endianest
@@ -70,4 +79,13 @@ std::string read_string(char*& c, bool has_size = false) {
         }
     }
     return str;
+};
+
+std::vector<unsigned char> read_hex(char*& c, int size) {
+    std::vector<unsigned char> vect;
+    while(size > 0) {
+        vect.emplace_back(read<unsigned char>(c));
+        size--;
+    }
+    return vect;
 };
