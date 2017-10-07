@@ -112,12 +112,16 @@ void BsonObj::setNext(BsonObj* obj){
     _next = obj;
 }
 
+std::string BsonObj::dump_one(std::string str){
+    return "\""+name+"\" : "+str;
+}
+
 BsonString::BsonString(char*& buff):BsonObj(buff) {
     str = read<std::string>(buff,1);
 }
 
 std::string BsonString::dump() {
-    return "\""+name+"\":\""+str+"\"";
+    return dump_one("\""+str+"\"");
 }
 
 std::string BsonString::get() {
@@ -241,25 +245,25 @@ BsonObj* BsonDoc::get(){
 BsonNull::BsonNull(char*& buff):BsonObj(buff) {}
 
 std::string BsonNull::dump() {
-    return "\""+name+"\": null";
+    return dump_one("null");
 }
 
 BsonUndef::BsonUndef(char*& buff):BsonObj(buff) {}
 
 std::string BsonUndef::dump() {
-    return "\""+name+"\": undef";
+    return dump_one("undef");
 }
 
 BsonMinKey::BsonMinKey(char*& buff):BsonObj(buff) {}
 
 std::string BsonMinKey::dump() {
-    return "\""+name+"\": min_key";
+    return dump_one("min_key");
 }
 
 BsonMaxKey::BsonMaxKey(char*& buff):BsonObj(buff) {}
 
 std::string BsonMaxKey::dump() {
-    return "\""+name+"\": max_key";
+    return dump_one("max_key");
 }
 
 BsonBool::BsonBool(char*& buff):BsonObj(buff) {
@@ -267,11 +271,11 @@ BsonBool::BsonBool(char*& buff):BsonObj(buff) {
 }
 
 std::string BsonBool::dump() {
-    std::string str = "\""+name+"\": ";
+    std::string str;
     if (val) {
-        str += "true";
+        str = dump_one("true");
     } else {
-        str += "false";
+        str = dump_one("false");
     }
     return str;
 }
@@ -285,7 +289,7 @@ BsonInt32::BsonInt32(char*& buff):BsonObj(buff) {
 }
 
 std::string BsonInt32::dump() {
-    return "\""+name+"\": "+std::to_string(val);
+    return dump_one(std::to_string(val));
 }
 
 int32_t BsonInt32::get() {
@@ -297,7 +301,7 @@ BsonInt64::BsonInt64(char*& buff):BsonObj(buff){
 }
 
 std::string BsonInt64::dump() {
-    return "\""+name+"\": "+std::to_string(val);
+    return dump_one(std::to_string(val));
 }
 
 int64_t BsonInt64::get() {
@@ -309,7 +313,7 @@ BsonUint64::BsonUint64(char*& buff):BsonObj(buff){
 }
 
 std::string BsonUint64::dump() {
-    return "\""+name+"\": "+std::to_string(val);
+    return dump_one(std::to_string(val));
 }
 
 uint64_t BsonUint64::get() {
@@ -322,7 +326,7 @@ BsonDouble::BsonDouble(char*& buff):BsonObj(buff){
 }
 
 std::string BsonDouble::dump() {
-    return "\""+name+"\": "+std::to_string(val);
+    return dump_one(std::to_string(val));
 }
 
 double BsonDouble::get() {
@@ -334,7 +338,7 @@ BsonTime::BsonTime(char*& buff):BsonObj(buff){
 }
 
 std::string BsonTime::dump() {
-    return std::string(std::asctime(std::gmtime(&val)));
+    return dump_one(std::string(std::asctime(std::gmtime(&val))));
 }
 
 std::time_t BsonTime::get() {
@@ -352,7 +356,7 @@ std::string BsonObjID::dump(){
     for (char c: val) {
         ss << std::hex << (int) static_cast<unsigned char>(c);
     }
-    return "\""+name+"\":"+ss.str();
+    return dump_one(ss.str());
 }
 
 
