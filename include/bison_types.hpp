@@ -18,7 +18,7 @@ enum class BSON_TYPE : unsigned char{
     DBPOINTER       = 0x0C,  // name string (byte*12) 	DBPointer — Deprecated
     JS_CODE         = 0x0D,  // name string 	JavaScript code
     SYMBOL          = 0x0E,  // name string 	Symbol. Deprecated
-    JS_SCOPE_CODE   = 0x0F,  // name code_w_s 	JavaScript code w/ scope
+    JS_S_CODE       = 0x0F,  // name code_w_s 	JavaScript code w/ scope
     INT32           = 0x10,  // name int32 	32-bit integer
     UINT64          = 0x11,  // name uint64 	Timestamp
     INT64           = 0x12,  // name int64 	64-bit integer

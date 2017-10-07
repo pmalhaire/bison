@@ -73,28 +73,60 @@ std::string read<std::string>(char*& c, int32_t s) {
 namespace BSON{
     BsonObj* parse(char*& buff) {
         BSON_TYPE type = static_cast<BSON_TYPE>(read<char>(buff));
-        if ( type == BSON_TYPE::DOC ) return nullptr;
 
         switch (type) {
+            case BSON_TYPE::DOC         : return nullptr; //00 indicates the end of the document
+            //DOC is not present here since we are in obj
             case BSON_TYPE::DOUBLE      : return new BsonDouble(buff);
             case BSON_TYPE::STRING      : return new BsonString(buff);
-            case BSON_TYPE::INT32       : return new BsonInt32(buff);
-            case BSON_TYPE::INT64       : return new BsonInt64(buff);
-            case BSON_TYPE::UINT64      : return new BsonUint64(buff);
-            case BSON_TYPE::TIME        : return new BsonTime(buff);
-            case BSON_TYPE::OBJ_ID      : return new BsonObjID(buff);
+            case BSON_TYPE::EMB_DOC     : return new BsonDoc(buff);
             //here we can make it as an actual array
             case BSON_TYPE::ARR         : return new BsonDoc(buff);
-            case BSON_TYPE::UNDEF       : return new BsonUndef(buff);
-            case BSON_TYPE::NULL_VALUE  : return new BsonNull(buff);
-            case BSON_TYPE::BOOL        : return new BsonBool(buff);
-            case BSON_TYPE::MIN_KEY     : return new BsonMinKey(buff);
-            case BSON_TYPE::MAX_KEY     : return new BsonMaxKey(buff);
-            default : {
+            case BSON_TYPE::BIN         : {
                 //TEMPORARY WHILE CODING
-                std::cerr << "fatal type:" << std::hex << (int) type << " not implemented"  << std::endl;
+                std::cerr << "TODO implement BIN"  << std::endl;
                 exit(1);
             }
+            case BSON_TYPE::UNDEF       : return new BsonUndef(buff);
+            case BSON_TYPE::OBJ_ID      : return new BsonObjID(buff);
+            case BSON_TYPE::BOOL        : return new BsonBool(buff);
+            case BSON_TYPE::TIME        : return new BsonTime(buff);
+            case BSON_TYPE::NULL_VALUE  : return new BsonNull(buff);
+            case BSON_TYPE::CSTRING     : {
+                //TEMPORARY WHILE CODING
+                std::cerr << "TODO implement CSTRING"  << std::endl;
+                exit(1);
+            }
+            case BSON_TYPE::DBPOINTER   : {
+                //TEMPORARY WHILE CODING
+                std::cerr << "TODO implement DBPOINTER"  << std::endl;
+                exit(1);
+            }
+            case BSON_TYPE::JS_CODE     : {
+                //TEMPORARY WHILE CODING
+                std::cerr << "TODO implement JS_CODE"  << std::endl;
+                exit(1);
+            }
+            case BSON_TYPE::SYMBOL      : {
+                //TEMPORARY WHILE CODING
+                std::cerr << "TODO implement SYMBOL"  << std::endl;
+                exit(1);
+            }
+            case BSON_TYPE::JS_S_CODE   : {
+                //TEMPORARY WHILE CODING
+                std::cerr << "TODO implement JS_S_CODE"  << std::endl;
+                exit(1);
+            }
+            case BSON_TYPE::INT32       : return new BsonInt32(buff);
+            case BSON_TYPE::UINT64      : return new BsonUint64(buff);
+            case BSON_TYPE::INT64       : return new BsonInt64(buff);
+            case BSON_TYPE::DEC128      : {
+                //TEMPORARY WHILE CODING
+                std::cerr << "TODO implement DEC128"  << std::endl;
+                exit(1);
+            }
+            case BSON_TYPE::MIN_KEY     : return new BsonMinKey(buff);
+            case BSON_TYPE::MAX_KEY     : return new BsonMaxKey(buff);
         }
         return nullptr;
     }
