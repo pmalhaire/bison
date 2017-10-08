@@ -19,7 +19,7 @@ public:
     void next();
 private:
     BsonDoc* _doc = nullptr;
-    std::vector<char>::iterator pos;
+    std::vector<char>::iterator _pos;
     std::vector<char>& _vect;
 };
 

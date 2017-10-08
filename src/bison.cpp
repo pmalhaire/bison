@@ -10,7 +10,7 @@
 Bson::Bson(std::vector<char>& vect):_vect(vect) {
     char* buff = vect.data();
     _doc = new BsonDoc(buff, vect.size());
-    pos = vect.begin() + (buff - vect.data());
+    _pos = vect.begin() + (buff - vect.data());
 };
 
 Bson::~Bson(){
@@ -36,11 +36,11 @@ void Bson::next()
 {
     if ( _doc != nullptr ) { delete _doc; _doc = nullptr;};
 
-    auto remaining = std::distance(pos, _vect.end());
+    auto remaining = std::distance(_pos, _vect.end());
     if (remaining > 0 ) {
-        char* start = _vect.data() + std::distance(_vect.begin(), pos);
+        char* start = _vect.data() + std::distance(_vect.begin(), _pos);
         char* buff = start;
         _doc = new BsonDoc(buff, remaining);
-        pos += buff - start;
+        _pos += buff - start;
     }
 }
