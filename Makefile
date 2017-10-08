@@ -5,11 +5,13 @@ unit_tests = hello small id array time
 sample_tests = mongodump
 
 DEBUG ?= 0
+PLAT = $(shell uname)
+
+BUILD_DIR = build/$(PLAT)
+
 ifeq ($(DEBUG), 1)
 	G_FLAG = -g 
-	BUILD_DIR = build/debug
-else
-    BUILD_DIR = build
+	BUILD_DIR += /debug
 endif
 
 L1 = =========================================
@@ -48,4 +50,4 @@ $(sample_tests):
 
 
 clean:
-	rm -rf ./build
+	rm -rf $(BUILD_DIR)
