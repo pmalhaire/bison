@@ -43,7 +43,7 @@ BsonObj* BsonObj::Parse(char*& buff) {
 
 
 BsonObj::BsonObj(char*& buff){
-    read_string(buff, &_name_begin,  &_name_size, false);
+    read_string(buff, _name_begin,  _name_size, false);
 }
 
 BsonObj* BsonObj::next(){
@@ -63,7 +63,7 @@ std::string BsonObj::dump_one(std::string str){
 }
 
 BsonString::BsonString(char*& buff):BsonObj(buff) {
-    read_string(buff, &_string_begin,  &_string_size, true);
+    read_string(buff, _string_begin,  _string_size, true);
 }
 
 std::string BsonString::dump() {
@@ -71,11 +71,11 @@ std::string BsonString::dump() {
 }
 
 std::string BsonString::get() {
-    return std::string(_string_begin, _string_size);
+    return std::string(_string_begin, _string_size-1);
 }
 
 BsonCString::BsonCString(char*& buff):BsonObj(buff) {
-    read_string(buff, &_string_begin,  &_string_size, false);
+    read_string(buff, _string_begin,  _string_size, false);
 }
 
 std::string BsonCString::dump() {
@@ -312,25 +312,29 @@ const std::vector<unsigned char>& BsonID::get(){
 }
 
 BsonDBPointer::BsonDBPointer(char*& buff):BsonObj(buff){
-    _string = read_string(buff, true);
+    read_string(buff, _db_begin, _db_size,true);
     _val = read_hex(buff,fixed_len);
 }
 
 std::string BsonDBPointer::dump(){
     std::stringstream ss;
-    ss << "\"" << _string << "\":";
+    std::string s;
+    s += "\"";
+    s += std::string(_db_begin, _db_size-1);
+    s += "\":";
     for (unsigned char c: _val) {
         ss << std::hex << std::setfill('0') << std::setw(2) << (int) c;
     }
-    return dump_one(ss.str());
+    s += ss.str();
+    return dump_one(s);
 }
 
 const std::vector<unsigned char>& BsonDBPointer::get(){
     return _val;
 }
 
-const std::string& BsonDBPointer::getString(){
-    return _string;
+std::string BsonDBPointer::getString(){
+    return std::string(_db_begin, _db_size-1);
 }
 
 BsonDec128::BsonDec128(char*& buff):BsonID(buff){}
@@ -372,7 +376,7 @@ unsigned char BsonBin::subtype(){
 
 BsonJsCodeWC::BsonJsCodeWC(char*& buff):BsonObj(buff){
     _length = read<int32_t>(buff);
-    _code = read_string(buff,true);
+    read_string(buff, _code_begin, _code_size,true);
     _doc = new BsonDoc(buff);
 }
 
@@ -385,7 +389,7 @@ std::string BsonJsCodeWC::dump(){
     s += "js_code len(";
     s += _length;
     s += ") :";
-    s += _code;
+    s += std::string(_code_begin, _code_size-1); //size in bson is with the \0
     s += " ";
     if ( _doc != nullptr ) {
         s += _doc->dump();
@@ -397,8 +401,8 @@ int32_t BsonJsCodeWC::getLength(){
     return _length;
 }
 
-std::string& BsonJsCodeWC::getCode(){
-    return _code;
+std::string BsonJsCodeWC::getCode(){
+    return std::string(_code_begin, _code_size-1);
 }
 
 BsonDoc* BsonJsCodeWC::getDoc(){

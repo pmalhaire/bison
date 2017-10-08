@@ -54,48 +54,21 @@ double read<double>(char*& c) {
     return v;
 };
 
-std::string read_string(char*& c, bool has_size = false) {
-    std::string str;
-    if (!has_size) {
-        str = std::string(c);
-        c += str.size() + 1; //string size + \0
-    } else {
-        //size including '\0' end char
-        int32_t size = read<int32_t>(c);
-        str = std::string(c, size-1);
-        //std::string gives the size without '\0' so size-1
-        if ( (size-1) != str.size() ) {
-            std::cerr << "fatal wrong string size for \""<< str 
-            <<"\" expected:" << size << " got:"<< str.size()+1 << std::endl;
-            exit(1);
-        } 
-        c += size-1;
-        BSON_TYPE type = static_cast<BSON_TYPE>(read<char>(c));
-        if (type != BSON_TYPE::DOC ) {
-            std::cerr << "fatal invalid string for " << std::endl 
-            <<"\""<< str << "\"" << std::endl << "size" << size
-            <<" missing '\\0' end char:" << std::hex << (int) type << std::endl;
-            exit(1);
-        }
-    }
-    return str;
-};
-
-void read_string(char*& c, char ** init, int32_t* size, bool has_size = false) {
+void read_string(char*& c, char *& init, int32_t& size, bool has_size = false) {
     
     if (!has_size) {
-        *init = c;
+        init = c;
         while(*c != '\0'){
             c++;
         }
         c++;
-        *size = c - *init;
+        size = c - init;
     } else {
         //size including '\0' end char
         int32_t local_size = read<int32_t>(c);
-        *init = c;
+        init = c;
         c += local_size;
-        *size = local_size;
+        size = local_size;
     }
 };
 

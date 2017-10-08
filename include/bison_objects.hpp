@@ -49,11 +49,12 @@ public:
     const BSON_TYPE type = BSON_TYPE::JS_CODE;
     std::string dump();
     int32_t getLength();
-    std::string& getCode();
+    std::string getCode();
     BsonDoc* getDoc();          
 private:
     int32_t _length;
-    std::string _code;
+    char*   _code_begin;                 // pointer to the begining of the code string
+    int32_t _code_size;                  // size of the code string
     BsonDoc* _doc = nullptr;
 };
 
@@ -221,10 +222,11 @@ public:
     std::string dump();
     const int fixed_len = 12;
     const std::vector<unsigned char>& get();
-    const std::string& getString();
+    std::string getString();
 private:
     std::vector<unsigned char> _val;
-    std::string _string;
+    char*   _db_begin;                 // pointer to the begining of the db string
+    int32_t _db_size;                  // size of the db string
 };
 
 
