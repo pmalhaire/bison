@@ -139,16 +139,16 @@ void BsonDoc::_init(char*& buff, size_t buff_size) {
 }
 
 BsonDoc::~BsonDoc(){
-    std::vector<BsonObj*> toDelete;
-    BsonObj* obj = get();
-    toDelete.push_back(obj);
-    while( (obj=obj->next()) ) {
-        toDelete.push_back(obj);
+    //TODO check leaks
+    BsonObj* last = get();
+    BsonObj* current = last->next();
+    while( current != nullptr ) {   
+        current = last->next();
+        delete last;
+        last = current;
     }
-
-    for (const BsonObj* d: toDelete) {
-        delete d;
-    }
+    //delete last element if 2 elements or more are present
+    if (last != nullptr) (delete last);
 }
 
 std::string BsonDoc::dump() {
