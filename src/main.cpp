@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    cout << file_path << " loaded" << endl;
+    cout << file_path << " loading size:" << fileSize << endl << std::flush;
     
     fileVector.reserve(fileSize);
     fileVector.assign(std::istreambuf_iterator<char>(fileStream),
@@ -62,13 +62,14 @@ int main(int argc, char *argv[]) {
 
     fileStream.close();
 
+    cout << ">> " << file_path << " loaded" << endl << std::flush;
+
     Bson test(fileVector);
 
-    //parse one by one
-    //TODO
+    //parse all
     while(test.getDoc() != nullptr) {
-        //dump content
-        std::cout << test.dump();
+        //dump content flushing to see parsing in console
+        std::cout << test.dump() << std::flush;
         test.next();
     }
 }
