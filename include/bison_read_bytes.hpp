@@ -81,10 +81,28 @@ std::string read_string(char*& c, bool has_size = false) {
     return str;
 };
 
+void read_string(char*& c, char ** init, int32_t* size, bool has_size = false) {
+    
+    if (!has_size) {
+        *init = c;
+        while(*c != '\0'){
+            c++;
+        }
+        c++;
+        *size = c - *init;
+    } else {
+        //size including '\0' end char
+        int32_t local_size = read<int32_t>(c);
+        *init = c;
+        c += local_size;
+        *size = local_size;
+    }
+};
+
 std::vector<unsigned char> read_hex(char*& c, int size) {
     std::vector<unsigned char> vect;
     while(size > 0) {
-        vect.emplace_back(read<unsigned char>(c));
+        vect.push_back(read<unsigned char>(c));
         size--;
     }
     return vect;

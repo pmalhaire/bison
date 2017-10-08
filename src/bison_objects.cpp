@@ -43,7 +43,7 @@ BsonObj* BsonObj::Parse(char*& buff) {
 
 
 BsonObj::BsonObj(char*& buff){
-    name = read_string(buff);
+    read_string(buff, &_name_begin,  &_name_size, false);
 }
 
 BsonObj* BsonObj::next(){
@@ -55,50 +55,65 @@ void BsonObj::setNext(BsonObj* obj){
 }
 
 std::string BsonObj::dump_one(std::string str){
-    return "\""+name+"\" : "+str;
+    std::string s = "\"";
+    s += std::string(_name_begin, _name_size-1);
+    s += "\" : ";
+    s +=str;
+    return s;
 }
 
 BsonString::BsonString(char*& buff):BsonObj(buff) {
-    _str = read_string(buff,true);
+    read_string(buff, &_string_begin,  &_string_size, true);
 }
 
 std::string BsonString::dump() {
-    return dump_one("\""+_str+"\"");
+    return dump_one("\""+std::string(_string_begin, _string_size-1)+"\"");
 }
 
 std::string BsonString::get() {
-    return _str;
+    return std::string(_string_begin, _string_size);
 }
 
 BsonCString::BsonCString(char*& buff):BsonObj(buff) {
-    _str = read_string(buff,false);
+    read_string(buff, &_string_begin,  &_string_size, false);
 }
 
 std::string BsonCString::dump() {
-    return dump_one("\""+_str+"\"");
+    return dump_one("\""+std::string(_string_begin, _string_size-1)+"\"");
 }
 
 std::string BsonCString::get() {
-    return _str;
+    return std::string(_string_begin, _string_size-1);
 }
 
 
 
-BsonDoc::BsonDoc(char*& buff, size_t buff_size) {
-    //TODO merge both constructors
+BsonDoc::BsonDoc(char*& buff, size_t buff_size):BsonObj() {
+    _init(buff, buff_size);
+}
+
+BsonDoc::BsonDoc(char*& buff):BsonObj(buff) {
+    _init(buff);
+}
+
+void BsonDoc::_init(char*& buff, size_t buff_size) {
     char* start = buff;
     BsonObj* current = nullptr;
     //document size
 
     int32_t size = read<int32_t>(buff);
 
-    if (size > buff_size){
-        std::cerr << "fatal incomplete bson file" 
-        << " needed size " << size
-        << " buffer size " << buff_size
-        << std::endl;
-        exit(1);
-    } 
+    //check buffer size for initial documents
+    if ( buff_size != -1 ) {
+        if (size > buff_size){
+            std::cerr << "fatal incomplete bson file" 
+            << " needed size " << size
+            << " buffer size " << buff_size
+            << std::endl;
+            exit(1);
+        } 
+        size = buff_size;
+    }
 
     //read first
     _obj = BsonObj::Parse(buff);
@@ -110,50 +125,12 @@ BsonDoc::BsonDoc(char*& buff, size_t buff_size) {
 
     current = _obj;
     //read more if needed
-    while ( buff-start < buff_size )
+    while ( buff-start < size )
     {
         BsonObj* temp = BsonObj::Parse(buff);
         
         
         if ( temp == nullptr) {
-            //end of document but there is maybe an other document
-            /*if (buff-start < buff_size) {
-                BsonDoc* doc = new BsonDoc(buff,buff_size-(buff-start));
-                if (doc == nullptr){
-                    std::cerr << "fatal could not read document" << std::endl;
-                    exit(1);
-                }
-                setNext(doc);
-            }*/
-            
-            break;
-        }
-        current->setNext(temp);
-        current = temp;
-    }
-}
-
-BsonDoc::BsonDoc(char*& buff):BsonObj(buff) {
-    char* start = buff;
-    BsonObj* current = nullptr;
-    //document size
-
-    int32_t size = read<int32_t>(buff);
-
-    //read first
-    _obj = BsonObj::Parse(buff);
-
-    if (_obj == nullptr) {
-        std::cerr << "fatal could not read bson document" << std::endl;
-        exit(1);
-    }
-
-    current = _obj;
-    //read more if needed
-    while ( buff-start<size )
-    {
-        BsonObj* temp = BsonObj::Parse(buff);
-        if ( temp == nullptr) { 
             break;
         }
         current->setNext(temp);
@@ -373,8 +350,8 @@ BsonBin::BsonBin(char*& buff):BsonObj(buff){
 
 std::string BsonBin::dump(){
     std::stringstream ss;
-    ss << "bin len("<< size() <<"):"<< std::setfill('0') << std::setw(2) 
-    << (int) _subtype << " ";
+    ss << "bin len("<< size() << "):" <<
+    std::hex << std::setfill('0') << std::setw(2) << (int) _subtype << " ";
     for (unsigned char c: _val) {
         ss << std::hex << std::setfill('0') << std::setw(2) << (int) c;
     }
@@ -404,10 +381,16 @@ BsonJsCodeWC::~BsonJsCodeWC(){
 }
 
 std::string BsonJsCodeWC::dump(){
-    std::stringstream ss;
-    ss << "js_code len("<< _length <<") :" << _code << " ";
-    if (_doc) ss << _doc->dump();
-    return dump_one(ss.str());
+    std::string s;
+    s += "js_code len(";
+    s += _length;
+    s += ") :";
+    s += _code;
+    s += " ";
+    if ( _doc != nullptr ) {
+        s += _doc->dump();
+    }
+    return dump_one(s);
 }
 
 int32_t BsonJsCodeWC::getLength(){
