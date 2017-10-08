@@ -62,15 +62,13 @@ int main(int argc, char *argv[]) {
 
     fileStream.close();
 
-    for (int i=0; i<500; i++){
-        Bson test(fileVector);
+    Bson test(fileVector);
 
-        //parse one by one
-        //TODO
-        while(test.getDoc() != nullptr) {
-            //dump content
-            std::cout << test.dump();
-            test.next();
-        }
+    //parse one by one
+    //TODO
+    while(test.getDoc() != nullptr) {
+        //dump content
+        std::cout << test.dump();
+        test.next();
     }
 }
