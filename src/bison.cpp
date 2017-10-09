@@ -7,10 +7,9 @@
 
 #include <iostream>
 
-Bson::Bson(std::vector<char>& vect):_vect(vect) {
-    char* buff = vect.data();
-    _doc = new BsonDoc(buff, vect.size());
-    _pos = vect.begin() + (buff - vect.data());
+Bson::Bson(const std::vector<char>& vect):_vect(vect) {
+    _pos = vect.begin();
+    _doc = new BsonDoc(_pos, vect.size());
 };
 
 Bson::~Bson(){
@@ -38,9 +37,6 @@ void Bson::next()
 
     auto remaining = std::distance(_pos, _vect.end());
     if (remaining > 0 ) {
-        char* start = _vect.data() + std::distance(_vect.begin(), _pos);
-        char* buff = start;
-        _doc = new BsonDoc(buff, remaining);
-        _pos += buff - start;
+        _doc = new BsonDoc(_pos, remaining);
     }
 }

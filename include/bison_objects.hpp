@@ -7,10 +7,12 @@
 
 #include "bison_types.hpp"
 
+using vect_it = std::vector<char>::const_iterator;
+
 class BsonObj {
 public:
     BsonObj(){};                         // use for document (not embeded)
-    BsonObj(char*& buff);                // compute the name at construction
+    BsonObj(vect_it& buff);                // compute the name at construction
     virtual ~BsonObj(){};
 
     //const BSON_TYPE type;              the type needed to access the real type (defined in subclasses)
@@ -20,36 +22,36 @@ public:
     BsonObj* next();                     // get the next object of the document
     void setNext(BsonObj* obj);          // internal function to set the next document
     std::string dump_one(std::string);   // small helper for type with one value
-    static BsonObj* Parse(char*& buff);  // factory used to create objects
+    static BsonObj* Parse(vect_it& buff);  // factory used to create objects
 private:
     BsonObj* _next = nullptr;
-    char* _name_begin;                   // pointer to the begining of the name string
+    vect_it _name_begin;                   // pointer to the begining of the name string
     int32_t _name_size;                  // size of the name string
 };
 
 class BsonDoc : public BsonObj{
 public:
-    BsonDoc(char*& buff, size_t buff_size);
-    BsonDoc(char*& buff);
+    BsonDoc(vect_it& buff, size_t buff_size);
+    BsonDoc(vect_it& buff);
     ~BsonDoc();
     const BSON_TYPE type = BSON_TYPE::DOC;
     BsonObj* get();                       //first object T of the document use T->next() until nullptr for the all document
     std::string dump();
 private:
-    void _init(char*& buff, size_t buff_size = -1);
+    void _init(vect_it& buff, size_t buff_size = -1);
     BsonObj* _obj = nullptr;
     const bool _has_name;
 };
 
 class BsonArr : public BsonDoc{
 public:
-    BsonArr(char*& buff):BsonDoc(buff){};
+    BsonArr(vect_it& buff):BsonDoc(buff){};
     const BSON_TYPE type = BSON_TYPE::ARR;
 };
 
 class BsonJsCodeWC : public BsonObj{
 public:                      
-    BsonJsCodeWC(char*& buff);
+    BsonJsCodeWC(vect_it& buff);
     ~BsonJsCodeWC();
     const BSON_TYPE type = BSON_TYPE::JS_CODE;
     std::string dump();
@@ -58,42 +60,42 @@ public:
     BsonDoc* getDoc();          
 private:
     int32_t _length;
-    char*   _code_begin;                 // pointer to the begining of the code string
+    vect_it   _code_begin;                 // pointer to the begining of the code string
     int32_t _code_size;                  // size of the code string
     BsonDoc* _doc = nullptr;
 };
 
 class BsonNull: public BsonObj{
 public:
-    BsonNull(char*& buff);
+    BsonNull(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::NULL_VALUE;
     std::string dump();
 };
 
 class BsonUndef: public BsonObj{
 public:
-    BsonUndef(char*& buff);
+    BsonUndef(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::UNDEF;
     std::string dump();
 };
 
 class BsonMinKey: public BsonObj{
 public:
-    BsonMinKey(char*& buff);
+    BsonMinKey(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::MIN_KEY;
     std::string dump();
 };
 
 class BsonMaxKey: public BsonObj{
 public:
-    BsonMaxKey(char*& buff);
+    BsonMaxKey(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::MAX_KEY;
     std::string dump();
 };
 
 class BsonBool: public BsonObj{
 public:
-    BsonBool(char*& buff);
+    BsonBool(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::BOOL;
     std::string dump();
     bool get();
@@ -103,7 +105,7 @@ private:
 
 class BsonInt32: public BsonObj{
 public:
-    BsonInt32(char*& buff);
+    BsonInt32(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::INT32;
     std::string dump();
     int32_t get();
@@ -114,7 +116,7 @@ private:
 
 class BsonInt64: public BsonObj{
 public:
-    BsonInt64(char*& buff);
+    BsonInt64(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::INT64;
     std::string dump();
     int64_t get();
@@ -124,14 +126,14 @@ private:
 
 class BsonTime: public BsonInt64{
 public:
-    BsonTime(char*& buff):BsonInt64(buff){};
+    BsonTime(vect_it& buff):BsonInt64(buff){};
     const BSON_TYPE type = BSON_TYPE::TIME;
 };
 
 
 class BsonUint64: public BsonObj{
 public:
-    BsonUint64(char*& buff);
+    BsonUint64(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::INT64;
     std::string dump();
     uint64_t get();
@@ -141,7 +143,7 @@ private:
 
 class BsonDouble: public BsonObj{
 public:
-    BsonDouble(char*& buff);
+    BsonDouble(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::DOUBLE;
     std::string dump();
     double get();
@@ -151,41 +153,41 @@ private:
 
 class BsonString: public BsonObj{
 public:
-    BsonString(char*& buff);
+    BsonString(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::STRING;
     std::string dump();
     std::string get();
 private:
-    char* _string_begin;
+    vect_it _string_begin;
     int32_t _string_size;
 };
 
 class BsonSymbol: public BsonString{
 public:
-    BsonSymbol(char*& buff):BsonString(buff){}
+    BsonSymbol(vect_it& buff):BsonString(buff){}
     const BSON_TYPE type = BSON_TYPE::SYMBOL;
 };
 
 class BsonJsCode: public BsonString{
 public:
-    BsonJsCode(char*& buff):BsonString(buff){}
+    BsonJsCode(vect_it& buff):BsonString(buff){}
     const BSON_TYPE type = BSON_TYPE::JS_CODE;
 };
 
 class BsonCString: public BsonObj{
 public:
-    BsonCString(char*& buff);
+    BsonCString(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::CSTRING;
     std::string dump();
     std::string get();
 private:
-    char* _string_begin;
+    vect_it _string_begin;
     int32_t _string_size;
 };
 
 class BsonID: public BsonObj{
 public:
-    BsonID(char*& buff);
+    BsonID(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::OBJ_ID;
     std::string dump();
     const int fixed_len = 12;
@@ -196,7 +198,7 @@ private:
 
 class BsonDBPointer: public BsonObj{
 public:
-    BsonDBPointer(char*& buff);
+    BsonDBPointer(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::DBPOINTER;
     std::string dump();
     const int fixed_len = 12;
@@ -204,14 +206,14 @@ public:
     std::string getString();
 private:
     std::vector<unsigned char> _val;
-    char*   _db_begin;                 // pointer to the begining of the db string
+    vect_it _db_begin;                 // pointer to the begining of the db string
     int32_t _db_size;                  // size of the db string
 };
 
 
 class BsonDec128: public BsonID{
 public:
-    BsonDec128(char*& buff);
+    BsonDec128(vect_it& buff);
     //dec128 is not in cpp14
     const BSON_TYPE type = BSON_TYPE::DEC128;
     const int fixed_len = 16;
@@ -219,7 +221,7 @@ public:
 
 class BsonBin: public BsonObj{
 public:
-    BsonBin(char*& buff);
+    BsonBin(vect_it& buff);
     const BSON_TYPE type = BSON_TYPE::BIN;
 
     std::string dump();

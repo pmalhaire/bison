@@ -29,14 +29,14 @@ class Bson{
 public:
     Bson() = delete;
     ~Bson();
-    Bson(std::vector<char>& vect);
+    Bson(const std::vector<char>& vect);
     BsonDoc* getDoc();               //get the current document as BsonDoc or null if there is no more
     void next();                     //jump to the next document in the file
     std::string dump();              //dump a human readable version of the current document as std::string
 private:
     BsonDoc*                    _doc = nullptr;
-    std::vector<char>::iterator _pos;
-    std::vector<char>&          _vect;
+    vect_it                     _pos;
+    const std::vector<char>&    _vect;
 };
 
 #endif // ndef BISON_HPP

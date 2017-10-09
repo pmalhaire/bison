@@ -11,7 +11,7 @@ else  { \
 
 void accessor_int() {
     std::vector<char> int_v = {'i','n','t','\x00','\x01','\x00','\x00','\x00'};
-    char* buff = int_v.data();
+    vect_it buff = int_v.begin();
 
     BsonInt32 bson_int(buff);
 
@@ -22,7 +22,7 @@ void accessor_int() {
 
 void accessor_string() {
     std::vector<char> int_v = {'s','t','r','i','n','g','\x00','\x07','\x00','\x00','\x00','s','t','r','i','n','g','\x00'};
-    char* buff = int_v.data();
+    vect_it buff = int_v.begin();
  
     BsonString bson_string(buff);
 
