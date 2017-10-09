@@ -40,8 +40,12 @@ BsonObj* BsonObj::Parse(vect_it& buff) {
 }
 
 
-BsonObj::BsonObj(vect_it& buff){
+BsonObj::BsonObj(vect_it& buff, BSON_TYPE type):_type(type){
     read_string(buff, _name_begin,  _name_size, false);
+}
+
+BSON_TYPE BsonObj::type(){
+    return _type;
 }
 
 std::string BsonObj::name(){
@@ -64,7 +68,7 @@ std::string BsonObj::dump_one(std::string str){
     return s;
 }
 
-BsonString::BsonString(vect_it& buff):BsonObj(buff) {
+BsonString::BsonString(vect_it& buff, BSON_TYPE type):BsonObj(buff, type) {
     read_string(buff, _string_begin,  _string_size, true);
 }
 
@@ -76,7 +80,7 @@ std::string BsonString::get() {
     return std::string(_string_begin, _string_begin + (_string_size-1));
 }
 
-BsonCString::BsonCString(vect_it& buff):BsonObj(buff) {
+BsonCString::BsonCString(vect_it& buff):BsonObj(buff, BSON_TYPE::STRING) {
     read_string(buff, _string_begin,  _string_size, false);
 }
 
@@ -88,13 +92,11 @@ std::string BsonCString::get() {
     return std::string(_string_begin, _string_begin + (_string_size-1));
 }
 
-
-
-BsonDoc::BsonDoc(vect_it& buff, size_t buff_size):BsonObj(),_has_name(false) {
+BsonDoc::BsonDoc(vect_it& buff, size_t buff_size):BsonObj(BSON_TYPE::DOC),_has_name(false) {
     _init(buff, buff_size);
 }
 
-BsonDoc::BsonDoc(vect_it& buff):BsonObj(buff),_has_name(true) {
+BsonDoc::BsonDoc(vect_it& buff, BSON_TYPE type):BsonObj(buff, type),_has_name(true) {
     _init(buff);
 }
 
@@ -182,31 +184,31 @@ BsonObj* BsonDoc::get(){
     return _obj;
 }
 
-BsonNull::BsonNull(vect_it& buff):BsonObj(buff) {}
+BsonNull::BsonNull(vect_it& buff):BsonObj(buff,BSON_TYPE::NULL_VALUE) {}
 
 std::string BsonNull::dump() {
     return dump_one("null");
 }
 
-BsonUndef::BsonUndef(vect_it& buff):BsonObj(buff) {}
+BsonUndef::BsonUndef(vect_it& buff):BsonObj(buff,BSON_TYPE::UNDEF) {}
 
 std::string BsonUndef::dump() {
     return dump_one("undef");
 }
 
-BsonMinKey::BsonMinKey(vect_it& buff):BsonObj(buff) {}
+BsonMinKey::BsonMinKey(vect_it& buff):BsonObj(buff,BSON_TYPE::MIN_KEY) {}
 
 std::string BsonMinKey::dump() {
     return dump_one("min_key");
 }
 
-BsonMaxKey::BsonMaxKey(vect_it& buff):BsonObj(buff) {}
+BsonMaxKey::BsonMaxKey(vect_it& buff):BsonObj(buff,BSON_TYPE::MAX_KEY) {}
 
 std::string BsonMaxKey::dump() {
     return dump_one("max_key");
 }
 
-BsonBool::BsonBool(vect_it& buff):BsonObj(buff) {
+BsonBool::BsonBool(vect_it& buff):BsonObj(buff,BSON_TYPE::BOOL) {
     _val = read<char>(buff);
 }
 
@@ -224,7 +226,7 @@ bool BsonBool::get() {
     return _val;
 }
 
-BsonInt32::BsonInt32(vect_it& buff):BsonObj(buff) {
+BsonInt32::BsonInt32(vect_it& buff):BsonObj(buff, BSON_TYPE::INT32) {
     _val = read<int32_t>(buff);
 }
 
@@ -236,7 +238,7 @@ int32_t BsonInt32::get() {
     return _val;
 }
 
-BsonInt64::BsonInt64(vect_it& buff):BsonObj(buff){
+BsonInt64::BsonInt64(vect_it& buff, BSON_TYPE t):BsonObj(buff, t){
     _val = read<int64_t>(buff);
 }
 
@@ -248,7 +250,7 @@ int64_t BsonInt64::get() {
     return _val;
 }
 
-BsonUint64::BsonUint64(vect_it& buff):BsonObj(buff){
+BsonUint64::BsonUint64(vect_it& buff):BsonObj(buff, BSON_TYPE::UINT64){
     _val = read<uint64_t>(buff);
 }
 
@@ -269,7 +271,7 @@ uint64_t BsonUint64::get() {
 }
 
 
-BsonDouble::BsonDouble(vect_it& buff):BsonObj(buff){
+BsonDouble::BsonDouble(vect_it& buff):BsonObj(buff, BSON_TYPE::DOUBLE){
     _val = read<double>(buff);
 }
 
@@ -281,7 +283,7 @@ double BsonDouble::get() {
     return _val;
 }
 
-BsonID::BsonID(vect_it& buff):BsonObj(buff),_val(read_hex(buff,fixed_len)){}
+BsonID::BsonID(vect_it& buff, BSON_TYPE t):BsonObj(buff, t),_val(read_hex(buff,fixed_len)){}
 
 std::string BsonID::dump(){
     //dumping as hex here
@@ -295,7 +297,7 @@ const std::vector<unsigned char>& BsonID::get(){
     return _val;
 }
 
-BsonDBPointer::BsonDBPointer(vect_it& buff):BsonObj(buff){
+BsonDBPointer::BsonDBPointer(vect_it& buff):BsonObj(buff, BSON_TYPE::DBPOINTER){
     read_string(buff, _db_begin, _db_size,true);
     _val = read_hex(buff,fixed_len);
 }
@@ -321,9 +323,7 @@ std::string BsonDBPointer::getString(){
     return std::string(_db_begin, _db_begin + (_db_size-1));
 }
 
-BsonDec128::BsonDec128(vect_it& buff):BsonID(buff){}
-
-BsonBin::BsonBin(vect_it& buff):BsonObj(buff){
+BsonBin::BsonBin(vect_it& buff):BsonObj(buff, BSON_TYPE::BIN){
     int32_t size = read<int32_t>(buff);
     //don't get why size is signed in spec 
     if ( size < 0 ) {
@@ -358,7 +358,7 @@ unsigned char BsonBin::subtype(){
     return _subtype;
 }
 
-BsonJsCodeWC::BsonJsCodeWC(vect_it& buff):BsonObj(buff){
+BsonJsCodeWC::BsonJsCodeWC(vect_it& buff):BsonObj(buff, BSON_TYPE::JS_CODE_WS){
     _length = read<int32_t>(buff);
     read_string(buff, _code_begin, _code_size,true);
     _doc = new BsonDoc(buff);
