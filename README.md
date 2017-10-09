@@ -2,9 +2,16 @@
 
 implementing bson spec v1.1 see http://bsonspec.org/spec.html 
 
-the code is still at early stage but the 22 types are implement
-some accessors may have to be updated
-some dump may need cleanup
+## Note
+
+The code is still at early stage but the 22 types are implemented.
+
+Some accessors may need update. 
+Some types do not have a proper dump function BsonID for example. 
+
+## platforms
+
+Tested under linux (Ubuntu 17.04) and osx(10.13)
 
 ## build 
 
