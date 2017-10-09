@@ -9,11 +9,19 @@
 main class to use the bson parser
 this class implements the specification v1.1 of the bson spec
 
-how to use loads a bsonfile in memory using a std::vector<char>
+how to use : 
+loads a bsonfile in memory using std::vector<char>
+
+Note:
 the file MUST be a complete and valid bson file
 invalid bson file will result on hard exit
 
-see unit_tests for the accessor of each type
+bison_object.hpp for each type cpp accessor 
+simple type T use T BsonT::get()
+composite types may have several get functions 
+getCode() getLenght() 
+
+all objects except intial BsonDoc have a name accessed by std::string BsonT::name()
 
 */
 

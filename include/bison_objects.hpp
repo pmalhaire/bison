@@ -15,7 +15,7 @@ public:
 
     //const BSON_TYPE type;              the type needed to access the real type defined in subclass
     //[cpp type] get()                   function to access the object as a cpp type 
-    std::string name;                    // name of the field or "" for the initial document
+    std::string name();                    // name of the field or "" for the initial document
     //todo test with bigger files
     virtual std::string dump() = 0;      // use to get a human readable string representing the object                 
     BsonObj* next();
@@ -39,13 +39,13 @@ public:
 private:
     void _init(char*& buff, size_t buff_size = -1);
     BsonObj* _obj = nullptr;
+    const bool _has_name;
 };
 
 class BsonArr : public BsonDoc{
 public:
-    BsonArr(char*& buff);
+    BsonArr(char*& buff):BsonDoc(buff){};
     const BSON_TYPE type = BSON_TYPE::ARR;
-    std::string dump();
 };
 
 class BsonJsCodeWC : public BsonObj{

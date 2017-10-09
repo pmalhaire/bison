@@ -46,6 +46,10 @@ BsonObj::BsonObj(char*& buff){
     read_string(buff, _name_begin,  _name_size, false);
 }
 
+std::string BsonObj::name(){
+    return std::string(_name_begin,_name_size);
+}
+
 BsonObj* BsonObj::next(){
     return _next;
 }
@@ -88,11 +92,11 @@ std::string BsonCString::get() {
 
 
 
-BsonDoc::BsonDoc(char*& buff, size_t buff_size):BsonObj() {
+BsonDoc::BsonDoc(char*& buff, size_t buff_size):BsonObj(),_has_name(false) {
     _init(buff, buff_size);
 }
 
-BsonDoc::BsonDoc(char*& buff):BsonObj(buff) {
+BsonDoc::BsonDoc(char*& buff):BsonObj(buff),_has_name(true) {
     _init(buff);
 }
 
@@ -153,12 +157,6 @@ BsonDoc::~BsonDoc(){
 
 std::string BsonDoc::dump() {
     std::string str;
-    //case of an embeded document
-    //TODO check this means a null name won't work
-    //there may be a bug
-    if (name.size() > 0 ) {
-        str += "\""+name+"\" : \n";
-    }
     str += "{\n";
     BsonObj* obj = get();
     str += obj->dump();
@@ -168,31 +166,15 @@ std::string BsonDoc::dump() {
         str += obj->dump();
     }
     str += "\n}\n";
+    
+    if (_has_name) {
+        return dump_one(str);
+    }
     return str;
 }
 
 BsonObj* BsonDoc::get(){
     return _obj;
-}
-
-BsonArr::BsonArr(char*& buff):BsonDoc(buff) {}
-
-std::string BsonArr::dump() {
-    std::string str;
-    if (name.size() > 0 ) {
-        str += "\""+name+"\" : ";
-    }
-    str += "{ ";
-    BsonObj* obj = get();
-    str += obj->dump();
-
-    while( (obj=obj->next()) ) 
-    {
-        str.append(",");
-        str.append(obj->dump());
-    }
-    str.append(" }\n");
-    return dump_one(str);
 }
 
 BsonNull::BsonNull(char*& buff):BsonObj(buff) {}
