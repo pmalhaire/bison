@@ -15,11 +15,11 @@ public:
 
     //const BSON_TYPE type;              the type needed to access the real type defined in subclass
     //[cpp type] get()                   function to access the object as a cpp type 
-    std::string name();                    // name of the field or "" for the initial document
+    std::string name();                  // name of the field or "" for the initial document
     //todo test with bigger files
     virtual std::string dump() = 0;      // use to get a human readable string representing the object                 
-    BsonObj* next();
-    void setNext(BsonObj* obj);
+    BsonObj* next();                     // get the next object of the document
+    void setNext(BsonObj* obj);          // internal function to set the next document
     std::string dump_one(std::string);   // small helper for type with one value
     static BsonObj* Parse(char*& buff);  // factory used to create objects
 private:
@@ -34,7 +34,7 @@ public:
     BsonDoc(char*& buff);
     ~BsonDoc();
     const BSON_TYPE type = BSON_TYPE::DOC;
-    BsonObj* get();
+    BsonObj* get();                       //first object T of the document use T->next() until nullptr for the all document
     std::string dump();
 private:
     void _init(char*& buff, size_t buff_size = -1);
@@ -100,7 +100,6 @@ public:
     bool get();
 private:
     bool _val;
-
 };
 
 class BsonInt32: public BsonObj{
@@ -214,6 +213,7 @@ private:
 class BsonDec128: public BsonID{
 public:
     BsonDec128(char*& buff);
+    //dec128 is not in cpp14
     const BSON_TYPE type = BSON_TYPE::DEC128;
     const int fixed_len = 16;
 };
