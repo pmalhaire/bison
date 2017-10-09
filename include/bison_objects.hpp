@@ -30,7 +30,6 @@ private:
 
 class BsonDoc : public BsonObj{
 public:
-    BsonDoc() = delete;
     BsonDoc(char*& buff, size_t buff_size);
     BsonDoc(char*& buff);
     ~BsonDoc();
@@ -44,15 +43,13 @@ private:
 
 class BsonArr : public BsonDoc{
 public:
-    BsonArr() = delete;
     BsonArr(char*& buff);
     const BSON_TYPE type = BSON_TYPE::ARR;
     std::string dump();
 };
 
 class BsonJsCodeWC : public BsonObj{
-public:
-    BsonJsCodeWC(){};                        
+public:                      
     BsonJsCodeWC(char*& buff);
     ~BsonJsCodeWC();
     const BSON_TYPE type = BSON_TYPE::JS_CODE;
@@ -69,7 +66,6 @@ private:
 
 class BsonNull: public BsonObj{
 public:
-    BsonNull() = delete;
     BsonNull(char*& buff);
     const BSON_TYPE type = BSON_TYPE::NULL_VALUE;
     std::string dump();
@@ -77,7 +73,6 @@ public:
 
 class BsonUndef: public BsonObj{
 public:
-    BsonUndef() = delete;
     BsonUndef(char*& buff);
     const BSON_TYPE type = BSON_TYPE::UNDEF;
     std::string dump();
@@ -85,7 +80,6 @@ public:
 
 class BsonMinKey: public BsonObj{
 public:
-    BsonMinKey() = delete;
     BsonMinKey(char*& buff);
     const BSON_TYPE type = BSON_TYPE::MIN_KEY;
     std::string dump();
@@ -93,7 +87,6 @@ public:
 
 class BsonMaxKey: public BsonObj{
 public:
-    BsonMaxKey() = delete;
     BsonMaxKey(char*& buff);
     const BSON_TYPE type = BSON_TYPE::MAX_KEY;
     std::string dump();
@@ -101,7 +94,6 @@ public:
 
 class BsonBool: public BsonObj{
 public:
-    BsonBool() = delete;
     BsonBool(char*& buff);
     const BSON_TYPE type = BSON_TYPE::BOOL;
     std::string dump();
@@ -113,7 +105,6 @@ private:
 
 class BsonInt32: public BsonObj{
 public:
-    BsonInt32() = delete;
     BsonInt32(char*& buff);
     const BSON_TYPE type = BSON_TYPE::INT32;
     std::string dump();
@@ -125,7 +116,6 @@ private:
 
 class BsonInt64: public BsonObj{
 public:
-    BsonInt64() = delete;
     BsonInt64(char*& buff);
     const BSON_TYPE type = BSON_TYPE::INT64;
     std::string dump();
@@ -143,7 +133,6 @@ public:
 
 class BsonUint64: public BsonObj{
 public:
-    BsonUint64() = delete;
     BsonUint64(char*& buff);
     const BSON_TYPE type = BSON_TYPE::INT64;
     std::string dump();
@@ -154,7 +143,6 @@ private:
 
 class BsonDouble: public BsonObj{
 public:
-    BsonDouble() = delete;
     BsonDouble(char*& buff);
     const BSON_TYPE type = BSON_TYPE::DOUBLE;
     std::string dump();
@@ -165,7 +153,6 @@ private:
 
 class BsonString: public BsonObj{
 public:
-    BsonString() = delete;
     BsonString(char*& buff);
     const BSON_TYPE type = BSON_TYPE::STRING;
     std::string dump();
@@ -189,7 +176,6 @@ public:
 
 class BsonCString: public BsonObj{
 public:
-    BsonCString() = delete;
     BsonCString(char*& buff);
     const BSON_TYPE type = BSON_TYPE::CSTRING;
     std::string dump();
@@ -201,7 +187,6 @@ private:
 
 class BsonID: public BsonObj{
 public:
-    BsonID() = delete;
     BsonID(char*& buff);
     const BSON_TYPE type = BSON_TYPE::OBJ_ID;
     std::string dump();
@@ -213,7 +198,6 @@ private:
 
 class BsonDBPointer: public BsonObj{
 public:
-    BsonDBPointer() = delete;
     BsonDBPointer(char*& buff);
     const BSON_TYPE type = BSON_TYPE::DBPOINTER;
     std::string dump();
@@ -229,7 +213,6 @@ private:
 
 class BsonDec128: public BsonID{
 public:
-    BsonDec128() = delete;
     BsonDec128(char*& buff);
     const BSON_TYPE type = BSON_TYPE::DEC128;
     const int fixed_len = 16;
@@ -237,7 +220,6 @@ public:
 
 class BsonBin: public BsonObj{
 public:
-    BsonBin() = delete;
     BsonBin(char*& buff);
     const BSON_TYPE type = BSON_TYPE::BIN;
 
