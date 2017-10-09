@@ -141,7 +141,6 @@ void BsonDoc::_init(char*& buff, size_t buff_size) {
 }
 
 BsonDoc::~BsonDoc(){
-    //TODO check leaks
     BsonObj* last = get();
     BsonObj* current = last->next();
     while( current != nullptr ) {   

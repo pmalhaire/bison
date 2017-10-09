@@ -16,7 +16,6 @@ public:
     //const BSON_TYPE type;              the type needed to access the real type (defined in subclasses)
     //[cpp type] get()                   function to access the object as a cpp type (defined in subclasses)
     std::string name();                  // name of the field or "" for the initial document
-    //todo test with bigger files
     virtual std::string dump() = 0;      // use to get a human readable string representing the object                 
     BsonObj* next();                     // get the next object of the document
     void setNext(BsonObj* obj);          // internal function to set the next document
