@@ -105,9 +105,17 @@ void BsonDoc::_init(vect_it& buff, size_t buff_size) {
 
     int32_t size = read<int32_t>(buff);
 
+    //make sure size is > 0 (why use a signed int here ?? bson spec seems broken)
+    if ( size < 0 ) {
+        std::cerr << "fatal invalid bson file" 
+        << "document size " << size << "can't be negative "
+        << std::endl;
+        exit(1);
+    }
+
     //check buffer size for initial documents
-    if ( buff_size != -1 ) {
-        if (size > buff_size){
+    if ( buff_size != (size_t)-1 ) {
+        if ((size_t)size > buff_size){
             std::cerr << "fatal incomplete bson file" 
             << " needed size " << size
             << " buffer size " << buff_size
