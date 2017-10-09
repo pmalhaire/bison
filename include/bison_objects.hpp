@@ -12,7 +12,7 @@ using vect_it = std::vector<char>::const_iterator;
 class BsonObj {
 public:
     BsonObj(){};                         // use for document (not embeded)
-    BsonObj(vect_it& buff);                // compute the name at construction
+    BsonObj(vect_it& buff);              // compute the name at construction
     virtual ~BsonObj(){};
 
     //const BSON_TYPE type;              the type needed to access the real type (defined in subclasses)
@@ -25,7 +25,7 @@ public:
     static BsonObj* Parse(vect_it& buff);  // factory used to create objects
 private:
     BsonObj* _next = nullptr;
-    vect_it _name_begin;                   // pointer to the begining of the name string
+    vect_it _name_begin;                 // pointer to the begining of the name string
     int32_t _name_size;                  // size of the name string
 };
 
@@ -60,7 +60,7 @@ public:
     BsonDoc* getDoc();          
 private:
     int32_t _length;
-    vect_it   _code_begin;                 // pointer to the begining of the code string
+    vect_it   _code_begin;               // pointer to the begining of the code string
     int32_t _code_size;                  // size of the code string
     BsonDoc* _doc = nullptr;
 };
