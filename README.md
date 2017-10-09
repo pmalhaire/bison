@@ -23,9 +23,7 @@ to
 ##use
 
 ```bash
-❯ ./build/$(uname)/bison test/hello.bson                                                                                                                                                                      [00:39:29]
-test/hello.bson loading size:22
->> test/hello.bson loaded
+❯ ./build/$(uname)/bison test/hello.bson
 {
 "hello" : "world"
 }
