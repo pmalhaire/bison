@@ -5,13 +5,13 @@ unit_tests = hello small array time ints #id is not working yet
 sample_tests = mongodump
 
 DEBUG ?= 0
-PLAT = $(shell uname)
+PLAT := $(shell uname)
 
-BUILD_DIR = build/$(PLAT)
+BUILD_DIR := build/$(PLAT)
 
 ifeq ($(DEBUG), 1)
 	G_FLAG = -g 
-	BUILD_DIR += /debug
+	BUILD_DIR := $(BUILD_DIR)/debug
 endif
 
 UNIT_TEST_DIR = $(BUILD_DIR)/unit_tests
