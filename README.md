@@ -13,7 +13,7 @@ Some types do not have a proper dump function BsonID for example.
 
 ## platforms
 
-Tested under linux (Ubuntu 17.04) and osx(10.13)
+Tested under linux (Ubuntu 17.04), osx(10.13) and windows(windows 10 using msys/mingw64)
 
 ## build 
 
