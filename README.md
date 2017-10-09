@@ -1,30 +1,49 @@
 # Bison is a basic Bson parser based on a vector
 
-Still at early stage but working 
+implementing bson spec v1.1 see http://bsonspec.org/spec.html 
 
-most types are implement
+the code is still at early stage but the 27 types are implement
+some accessors may have to be updated
 
 ##build 
 
 ```bash
 make
+```
 
+## test 
 
-````
-
-##test 
-
+```bash
 make test
+```
 
-##debug
+## debug
 
-to
+build with debug symbols using DEBUG=1
 
-##use
+ex 
+```bash
+make DEBUG=1 test
+```
+or to keep debug active
+```bash
+export DEBUG=1
+make test
+```
+
+## use
 
 ```bash
 ❯ ./build/$(uname)/bison test/hello.bson
 {
 "hello" : "world"
 }
-````
+```
+
+## test more
+
+you can run the parser on a big file ~1GB using
+
+```bash
+make big_test
+```
