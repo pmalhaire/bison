@@ -6,10 +6,14 @@ implementing bson spec v1.1 see http://bsonspec.org/spec.html
 
 The code is still at early stage but the 22 types are implemented.
 
-To see how type is implemented see bison_objects.hpp
+To see how types are implemented see [bison_objects.hpp](include/bison_objects.hpp)
 
 Some accessors may need update. 
 Some types do not have a proper dump function BsonID for example. 
+
+## parsing example
+
+for parsing example see [accessors_tests.cpp](src/accessors_tests.cpp)
 
 ## platforms
 
