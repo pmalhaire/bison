@@ -53,22 +53,18 @@ int main(int argc, char *argv[]) {
         cerr << file_path << " is not readable" << endl ;
         return 1;
     }
-
-    cout << file_path << " loading size:" << fileSize << endl << std::flush;
     
     fileVector.reserve(fileSize);
     fileVector.assign(std::istreambuf_iterator<char>(fileStream),
                         std::istreambuf_iterator<char>());
-
     fileStream.close();
 
-    cout << ">> " << file_path << " loaded" << endl << std::flush;
-
+    //load the vector into the parser
     Bson test(fileVector);
 
-    //parse all
+    //parse all documents in the file
     while(test.getDoc() != nullptr) {
-        //dump content flushing to see parsing in console
+        //dump the content of each document to console
         std::cout << test.dump() << std::flush;
         test.next();
     }

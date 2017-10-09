@@ -164,10 +164,10 @@ std::string BsonDoc::dump() {
     str += obj->dump();
     while( (obj=obj->next()) ) 
     {
-        str.append(",\n");
-        str.append(obj->dump());
+        str += ",\n";
+        str += obj->dump();
     }
-    str.append("\n}\n");
+    str += "\n}\n";
     return str;
 }
 
@@ -182,7 +182,7 @@ std::string BsonArr::dump() {
     if (name.size() > 0 ) {
         str += "\""+name+"\" : ";
     }
-    str += "[ ";
+    str += "{ ";
     BsonObj* obj = get();
     str += obj->dump();
 
@@ -191,8 +191,8 @@ std::string BsonArr::dump() {
         str.append(",");
         str.append(obj->dump());
     }
-    str.append(" ]\n");
-    return str;
+    str.append(" }\n");
+    return dump_one(str);
 }
 
 BsonNull::BsonNull(char*& buff):BsonObj(buff) {}
@@ -266,7 +266,15 @@ BsonUint64::BsonUint64(char*& buff):BsonObj(buff){
 }
 
 std::string BsonUint64::dump() {
-    return dump_one(std::to_string(_val));
+    //spec is not really clear but it seems logical like this
+    //from https://json-bson-converter.appspot.com
+    std::string s;
+    s += "{ \"inc\" : ";
+    s +=  std::to_string(_val << 32 >> 32);
+    s += ", \"time\" : ";
+    s +=  std::to_string(_val>>32);
+    s += " }";
+    return dump_one(s);
 }
 
 uint64_t BsonUint64::get() {
@@ -286,21 +294,10 @@ double BsonDouble::get() {
     return _val;
 }
 
-BsonTime::BsonTime(char*& buff):BsonObj(buff){
-    _time = std::time_t(read<int64_t>(buff));
-}
-
-std::string BsonTime::dump() {
-    return dump_one(std::string(std::asctime(std::gmtime(&_time))));
-}
-
-std::time_t BsonTime::get() {
-    return _time;
-}
-
 BsonID::BsonID(char*& buff):BsonObj(buff),_val(read_hex(buff,fixed_len)){}
 
 std::string BsonID::dump(){
+    //dumping as hex here
     std::stringstream ss;
     for (unsigned char c: _val) {
         ss << std::hex << std::setfill('0') << std::setw(2) << (int) c;

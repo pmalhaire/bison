@@ -13,7 +13,8 @@ public:
     BsonObj(char*& buff);                // compute the name at construction
     virtual ~BsonObj(){};
 
-    //const BSON_TYPE type;              // the type needed to access the real type defined in subclass
+    //const BSON_TYPE type;              the type needed to access the real type defined in subclass
+    //[cpp type] get()                   function to access the object as a cpp type 
     std::string name;                    // name of the field or "" for the initial document
     //todo test with bigger files
     virtual std::string dump() = 0;      // use to get a human readable string representing the object                 
@@ -41,6 +42,14 @@ private:
     BsonObj* _obj = nullptr;
 };
 
+class BsonArr : public BsonDoc{
+public:
+    BsonArr() = delete;
+    BsonArr(char*& buff);
+    const BSON_TYPE type = BSON_TYPE::ARR;
+    std::string dump();
+};
+
 class BsonJsCodeWC : public BsonObj{
 public:
     BsonJsCodeWC(){};                        
@@ -56,14 +65,6 @@ private:
     char*   _code_begin;                 // pointer to the begining of the code string
     int32_t _code_size;                  // size of the code string
     BsonDoc* _doc = nullptr;
-};
-
-class BsonArr : public BsonDoc{
-public:
-    BsonArr() = delete;
-    BsonArr(char*& buff);
-    const BSON_TYPE type = BSON_TYPE::ARR;
-    std::string dump();
 };
 
 class BsonNull: public BsonObj{
@@ -133,6 +134,13 @@ private:
     int64_t _val;
 };
 
+class BsonTime: public BsonInt64{
+public:
+    BsonTime(char*& buff):BsonInt64(buff){};
+    const BSON_TYPE type = BSON_TYPE::TIME;
+};
+
+
 class BsonUint64: public BsonObj{
 public:
     BsonUint64() = delete;
@@ -189,17 +197,6 @@ public:
 private:
     char* _string_begin;
     int32_t _string_size;
-};
-
-class BsonTime: public BsonObj{
-public:
-    BsonTime() = delete;
-    BsonTime(char*& buff);
-    const BSON_TYPE type = BSON_TYPE::TIME;
-    std::string dump();
-    std::time_t get();
-private:
-    std::time_t _time;
 };
 
 class BsonID: public BsonObj{

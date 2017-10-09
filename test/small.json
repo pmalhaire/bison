@@ -1,1 +1,1 @@
-{"small":[True, False, Null, Undef, MaxKey, MinKey]}
+{"small" : { "0" : true,"1" : false,"2" : undef,"3" : null,"4" : min_key,"5" : max_key }}
