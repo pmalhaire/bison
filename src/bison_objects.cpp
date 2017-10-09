@@ -11,11 +11,9 @@ BsonObj* BsonObj::Parse(char*& buff) {
 
     switch (type) {
         case BSON_TYPE::DOC         : return nullptr; //00 indicates the end of the document
-        //DOC is not present here since we are in obj
         case BSON_TYPE::DOUBLE      : return new BsonDouble(buff);
         case BSON_TYPE::STRING      : return new BsonString(buff);
         case BSON_TYPE::EMB_DOC     : return new BsonDoc(buff);
-        //here we can make it as an actual array
         case BSON_TYPE::ARR         : return new BsonArr(buff);
         case BSON_TYPE::BIN         : return new BsonBin(buff);
         case BSON_TYPE::UNDEF       : return new BsonUndef(buff);
