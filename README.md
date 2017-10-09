@@ -6,6 +6,8 @@ implementing bson spec v1.1 see http://bsonspec.org/spec.html
 
 The code is still at early stage but the 22 types are implemented.
 
+To see how type is implemented see bison_objects.hpp
+
 Some accessors may need update. 
 Some types do not have a proper dump function BsonID for example. 
 
@@ -16,7 +18,7 @@ Tested under linux (Ubuntu 17.04) and osx(10.13)
 ## build 
 
 ```bash
-make                                                                                                                                      [13:33:25]
+make
  ❯ bison build OK
 ```
 
