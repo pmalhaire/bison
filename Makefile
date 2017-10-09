@@ -29,7 +29,7 @@ $(BUILD_DIR)/bison: $(sources) $(headers)
 	@g++ -Wall -std=c++14 $(G_FLAG) -Iinclude $(sources) -o $(basename $@)
 	@echo bison build OK
 
-test: bison unit_test sample_test
+test: bison sample_test unit_test
 
 unit_test: bison $(unit_tests)
 
