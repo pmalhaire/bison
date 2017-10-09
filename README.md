@@ -13,7 +13,7 @@ Some types do not have a proper dump function BsonID for example.
 
 ## parsing example
 
-for parsing example see [accessors_tests.cpp](src/accessors_tests.cpp)
+For parsing example see [accessors_tests.cpp](src/accessors_tests.cpp).
 
 ## platforms
 
@@ -34,7 +34,7 @@ make test
 
 ## debug
 
-build with debug symbols using DEBUG=1
+Build with debug symbols using `DEBUG=1`.
 
 ex 
 ```bash
@@ -57,7 +57,8 @@ make test
 
 ## test more
 
-you can run the parser on a big file ~1GB using
+You can run the parser on a big file ~1GB using.
+It's justs parse the file the parse result is not checked.
 
 ```bash
 make big_test
