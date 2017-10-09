@@ -5,10 +5,11 @@ implementing bson spec v1.1 see http://bsonspec.org/spec.html
 the code is still at early stage but the 27 types are implement
 some accessors may have to be updated
 
-##build 
+## build 
 
 ```bash
-make
+make                                                                                                                                      [13:33:25]
+ ❯ bison build OK
 ```
 
 ## test 
