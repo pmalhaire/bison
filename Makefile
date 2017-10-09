@@ -1,4 +1,4 @@
-sources = $(addprefix src/, main.cpp bison.cpp bison_objects.cpp)
+sources = $(addprefix src/, bison.cpp bison_objects.cpp)
 headers = $(addprefix include/, bison.hpp bison_types.hpp bison_read_bytes.hpp bison_objects.hpp)
 
 unit_tests = hello small array time ints #id is not working yet
@@ -25,14 +25,14 @@ L3 = !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 bison: $(BUILD_DIR)/bison
 
-$(BUILD_DIR)/bison: $(sources) $(headers)
+$(BUILD_DIR)/bison: $(sources) $(headers) src/main.cpp
 	@mkdir -p $(BUILD_DIR)
-	@g++ -Wall -std=c++14 $(G_FLAG) -Iinclude $(sources) -o $(basename $@)
+	@g++ -Wall -std=c++14 $(G_FLAG) -Iinclude $(sources) src/main.cpp -o $(basename $@)
 	@echo bison build OK
 
 test: bison sample_test unit_test
 
-unit_test: bison $(unit_tests)
+unit_test: bison $(unit_tests) acessors_tests
 
 sample_test: bison $(sample_tests)
 
@@ -47,6 +47,11 @@ $(unit_tests):
 	$(UNIT_TEST_DIR)/$(addsuffix .json,$@) || ( echo $(L3) && echo test $@ KO && false )
 	@rm $(UNIT_TEST_DIR)/$(addsuffix .json,$@)
 	@echo "=     $@ OK"
+
+acessors_tests: $(sources) $(headers) src/accessors_tests.cpp
+	@mkdir -p $(UNIT_TEST_DIR)
+	@g++ -Wall -std=c++14 $(G_FLAG) -Iinclude $(sources) src/accessors_tests.cpp -o $(basename $(UNIT_TEST_DIR)/$@)
+	@./$(UNIT_TEST_DIR)/$@
 
 
 $(sample_tests):

@@ -16,10 +16,10 @@ Note:
 the file MUST be a complete and valid bson file
 invalid bson file will result on hard exit
 
-bison_object.hpp for each type cpp accessor 
+see bison_object.hpp for each type cpp accessor 
 simple type T use T BsonT::get()
-composite types may have several get functions 
-getCode() getLenght() 
+composite types may have several get functions ex: getCode() getLenght() 
+see accessor_tests for an example
 
 all objects except intial BsonDoc have a name accessed by std::string BsonT::name()
 

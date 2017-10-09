@@ -47,7 +47,7 @@ BsonObj::BsonObj(char*& buff){
 }
 
 std::string BsonObj::name(){
-    return std::string(_name_begin,_name_size);
+    return std::string(_name_begin,_name_size-1);
 }
 
 BsonObj* BsonObj::next(){
