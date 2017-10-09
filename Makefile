@@ -34,7 +34,9 @@ test: bison sample_test unit_test
 
 unit_test: bison $(unit_tests) acessors_tests
 
+
 sample_test: bison $(sample_tests)
+	@echo $(L2)
 
 $(unit_tests):
 	@rm -rf $(UNIT_TEST_DIR)
