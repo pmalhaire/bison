@@ -15,12 +15,13 @@ ifeq ($(DEBUG), 1)
 endif
 
 UNIT_TEST_DIR = $(BUILD_DIR)/unit_tests
+BIG_TEST_DIR = $(BUILD_DIR)/big_test
 
 L1 = =========================================
 L2 = -----------------------------------------
 L3 = !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-.PHONY: clean debug bison test unit_test sample_test $(unit_tests) $(sample_tests)
+.PHONY: clean debug bison test unit_test sample_test $(unit_tests) $(sample_tests) big_test
 
 bison: $(BUILD_DIR)/bison
 
@@ -57,6 +58,10 @@ $(sample_tests):
 	@echo $(L2)
 	@echo "=     $@ OK"
 
+big_test: bison
+	@mkdir -p $(BIG_TEST_DIR)
+	tar jxvf test/people.tar.bz2  -C $(BIG_TEST_DIR)
+	@./$(BUILD_DIR)/bison $(BIG_TEST_DIR)/people.bson
 
 clean:
 	rm -rf $(BUILD_DIR)
