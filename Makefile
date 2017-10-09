@@ -49,6 +49,7 @@ $(unit_tests):
 	@echo "=     $@ OK"
 
 acessors_tests: $(sources) $(headers) src/accessors_tests.cpp
+	@echo $(L2)
 	@mkdir -p $(UNIT_TEST_DIR)
 	@g++ -Wall -std=c++14 $(G_FLAG) -Iinclude $(sources) src/accessors_tests.cpp -o $(basename $(UNIT_TEST_DIR)/$@)
 	@./$(UNIT_TEST_DIR)/$@

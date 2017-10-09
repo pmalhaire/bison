@@ -3,9 +3,9 @@
 #include <iostream>
 
 #define TEST(X)\
-if ( X ) std::cout << __func__ << " OK " << std::endl;\
+if ( X ) std::cout << "=      " << __func__ << " OK " << std::endl;\
 else  { \
-    std::cout << __func__ << " KO " << std::endl;\
+    std::cout << "=      " << __func__ << " KO " << std::endl;\
     exit(1);\
 }
 
