@@ -35,10 +35,10 @@ make test
 ## use
 
 ```bash
-❯ ./build/$(uname)/bison test/hello.bson
-{
-"hello" : "world"
-}
+./build/$(uname)/bison test/hello.bson
+❯ {
+❯ "hello" : "world"
+❯ }
 ```
 
 ## test more
