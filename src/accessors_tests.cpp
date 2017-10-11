@@ -71,18 +71,15 @@ void accessor_doc() {
     vect_it buff = int_v.begin();
     BsonDoc doc(buff, int_v.size());
 
-    BsonObj* obj = doc.get();
-    BsonString* bson_string = nullptr;
-
-    if (obj->type() == BSON_TYPE::STRING) {
-        bson_string = static_cast<BsonString*>(obj);
-    }
+    std::unique_ptr<BsonObj> obj = doc.next();
 
     std::string name;
     std::string value;
-    if (bson_string) {
-        name = bson_string->name();
-        value = bson_string->get();
+
+    if (obj->type() == Bson_type::STRING) {
+        auto bson_string = dynamic_cast<BsonString&>(*obj);
+        name = bson_string.name();
+        value = bson_string.get();
     }
 
     TEST( !name.compare("hello") && !value.compare("world") );

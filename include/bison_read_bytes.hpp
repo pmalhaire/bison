@@ -4,72 +4,22 @@
 
 using vect_it = std::vector<char>::const_iterator;
 
+
 //here we use vect_it reference to move through the pointers
-//once the buff is read the pointer is incremented for the next read
-template<typename T>
-T read(vect_it& c) {
-    return T();
-};
-
-template<>
-char read<char>(vect_it& c) {
-    char v = *c;
-    c++;
-    return v;
-};
-
-template<>
-unsigned char read<unsigned char>(vect_it& c) {
-    unsigned char v;
-    v = *c;
-    c++;
-    return v;
-};
-
-
-//taking a bit of risks here we expect the machine to be little endian
-//TODO add compile time check of endianest
-template <>
-int32_t read<int32_t>(vect_it& c) {
-    int32_t v;
+template<typename T, typename = std::enable_if<std::is_integral<T>::value || std::is_floating_point<T>::value>>
+T read(vect_it& it) {
+    T v;
     char* p = (char*)&v;
-    for (int i=0; i < 4; i++) {
-        *(p+i) = *(c++);
+    for (size_t i=0; i < sizeof(T); i++) {
+        *(p+i) = *(it++);
     }
     return v;
-};
+}
 
-template <>
-int64_t read<int64_t>(vect_it& c) {
-    int64_t v;
-    char* p = (char*)&v;
-    for (int i=0; i < 8; i++) {
-        *(p+i) = *(c++);
-    }
-    return v;
-};
+void read_string(vect_it& c, vect_it& init, int32_t& size, bool has_size = false);
+std::vector<unsigned char> read_hex(vect_it& c, int size);
 
-template <>
-uint64_t read<uint64_t>(vect_it& c) {
-    uint64_t v;
-    char* p = (char*)&v;
-    for (int i=0; i < 8; i++) {
-        *(p+i) = *(c++);
-    }
-    return v;
-};
-
-template <>
-double read<double>(vect_it& c) {
-    double v;
-    char* p = (char*)&v;
-    for (int i=0; i < 8; i++) {
-        *(p+i) = *(c++);
-    }
-    return v;
-};
-
-void read_string(vect_it& c, vect_it& init, int32_t& size, bool has_size = false) {
+void read_string(vect_it& c, vect_it& init, int32_t& size, bool has_size) {
     
     if (!has_size) {
         init = c;
@@ -85,7 +35,7 @@ void read_string(vect_it& c, vect_it& init, int32_t& size, bool has_size = false
         c += local_size;
         size = local_size;
     }
-};
+}
 
 std::vector<unsigned char> read_hex(vect_it& c, int size) {
     std::vector<unsigned char> vect;
@@ -94,4 +44,4 @@ std::vector<unsigned char> read_hex(vect_it& c, int size) {
         size--;
     }
     return vect;
-};
+}

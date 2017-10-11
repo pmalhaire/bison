@@ -28,15 +28,11 @@ all objects except intial BsonDoc have a name accessed by std::string BsonT::nam
 class Bson{
 public:
     Bson() = delete;
-    ~Bson();
-    Bson(const std::vector<char>& vect);
-    BsonDoc* getDoc();               //get the current document as BsonDoc or null if there is no more
-    void next();                     //jump to the next document in the file
-    std::string dump();              //dump a human readable version of the current document as std::string
+    explicit Bson(const std::vector<char>& vect):_vect(vect),_pos(vect.begin()){}
+    std::unique_ptr<BsonDoc> next(); //get the current document as BsonDoc or null if there is no more
 private:
-    BsonDoc*                    _doc = nullptr;
-    vect_it                     _pos;
     const std::vector<char>&    _vect;
+    vect_it                     _pos;
 };
 
 #endif // ndef BISON_HPP

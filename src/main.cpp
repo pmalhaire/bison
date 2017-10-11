@@ -39,9 +39,6 @@ int main(int argc, char *argv[]) {
 
     ifstream fileStream(file_path, std::ios::binary);
 
-
-
-
     //check that the file can be opened
     if ( !fileStream.is_open() ) {
         cerr << file_path << " could not be opened" << endl ;
@@ -58,14 +55,13 @@ int main(int argc, char *argv[]) {
     fileVector.assign(std::istreambuf_iterator<char>(fileStream),
                         std::istreambuf_iterator<char>());
     fileStream.close();
-
     //load the vector into the parser
     Bson test(fileVector);
 
+    std::unique_ptr<BsonDoc> doc;
     //parse all documents in the file
-    while(test.getDoc() != nullptr) {
+    while( (doc = test.next()) ) {
         //dump the content of each document to console
-        std::cout << test.dump() << std::flush;
-        test.next();
+        std::cout << doc->dump() << std::flush;
     }
 }

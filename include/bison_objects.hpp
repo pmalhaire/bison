@@ -11,138 +11,137 @@ using vect_it = std::vector<char>::const_iterator;
 
 class BsonObj {
 public:
-    BsonObj(BSON_TYPE t):_type(t){};              // use for document (not embeded)
-    BsonObj(vect_it& buff, BSON_TYPE t); // compute the name at construction
-    virtual ~BsonObj(){};
-
-    BSON_TYPE type();                    //the type of the object
+    BsonObj() = delete;
+    explicit BsonObj(Bson_type t):_type(t){}      // use for document (not embeded)BsonObj(Bson_type t):_type(t){};     // use for document (not embeded)
+    explicit BsonObj(vect_it& it, Bson_type t); // compute the name at construction
+    Bson_type type() const;                    //the type of the object
     //[cpp type] get()                   function to access the object as a cpp type (defined in subclasses)
-    std::string name();                  // name of the field or "" for the initial document
-    virtual std::string dump() = 0;      // use to get a human readable string representing the object                 
-    BsonObj* next();                     // get the next object of the document
-    void setNext(BsonObj* obj);          // internal function to set the next document
-    std::string dump_one(std::string);   // small helper for type with one value
-    static BsonObj* Parse(vect_it& buff);  // factory used to create objects
+    std::string name() const;                  // name of the field or "" for the initial document
+    virtual std::string dump() const = 0;      // use to get a human readable string representing the object
+    std::string dump_one(std::string) const;   // small helper for type with one value
+    static std::unique_ptr<BsonObj> Parse(vect_it& it);  // factory used to create objects
 private:
-    BsonObj* _next = nullptr;
-    vect_it _name_begin;                 // pointer to the begining of the name string
-    int32_t _name_size;                  // size of the name string
-    const BSON_TYPE _type;
+    vect_it _name_begin ;                       // pointer to the begining of the name string
+    int32_t _name_size = 0;                     // size of the name string
+    const Bson_type _type;
 };
 
 class BsonDoc : public BsonObj{
 public:
-    BsonDoc(vect_it& buff, size_t buff_size); //initial document
-    BsonDoc(vect_it& buff, BSON_TYPE = BSON_TYPE::DOC);
-    ~BsonDoc();
-    BsonObj* get();                       //first object T of the document use T->next() until nullptr for the all document
-    std::string dump();
+    BsonDoc(vect_it it, size_t it_size); //initial document
+    BsonDoc(vect_it it, Bson_type = Bson_type::DOC);
+    std::unique_ptr<BsonObj> next();         //use T->next() until nullptr for the all document
+    vect_it end() const;
+    virtual std::string dump() const override;
 private:
-    void _init(vect_it& buff, size_t buff_size = -1);
-    BsonObj* _obj = nullptr;
+    void _init(size_t it_size = static_cast<size_t>(-1));
     const bool _has_name;
+    vect_it _pos;
+    int32_t _size;
+    size_t _vector_remaining_size = static_cast<size_t>(-1);
+    const vect_it _begin;
+    const vect_it _end; //next pos after vect
 };
 
 class BsonArr : public BsonDoc{
 public:
-    BsonArr(vect_it& buff):BsonDoc(buff, BSON_TYPE::ARR){};
+    explicit BsonArr(vect_it& it):BsonDoc(it, Bson_type::ARR){}
 };
 
 class BsonJsCodeWC : public BsonObj{
 public:                      
-    BsonJsCodeWC(vect_it& buff);
-    ~BsonJsCodeWC();
-    std::string dump();
-    int32_t getLength();
-    std::string getCode();
-    BsonDoc* getDoc();          
+    explicit BsonJsCodeWC(vect_it& it);
+    std::string dump() const override;
+    int32_t getLength() const;
+    std::string getCode() const;
+    std::unique_ptr<BsonDoc> getDoc();
 private:
     int32_t _length;
     vect_it   _code_begin;               // pointer to the begining of the code string
     int32_t _code_size;                  // size of the code string
-    BsonDoc* _doc = nullptr;
+    std::unique_ptr<BsonDoc> _doc = nullptr;
 };
 
 class BsonNull: public BsonObj{
 public:
-    BsonNull(vect_it& buff);
-    std::string dump();
+    explicit BsonNull(vect_it& it);
+    std::string dump() const override;
 };
 
 class BsonUndef: public BsonObj{
 public:
-    BsonUndef(vect_it& buff);
-    std::string dump();
+    explicit BsonUndef(vect_it& it);
+    std::string dump() const override;
 };
 
 class BsonMinKey: public BsonObj{
 public:
-    BsonMinKey(vect_it& buff);
-    std::string dump();
+    explicit BsonMinKey(vect_it& it);
+    std::string dump() const override;
 };
 
 class BsonMaxKey: public BsonObj{
 public:
-    BsonMaxKey(vect_it& buff);
-    std::string dump();
+    explicit BsonMaxKey(vect_it& it);
+    std::string dump() const override;
 };
 
 class BsonBool: public BsonObj{
 public:
-    BsonBool(vect_it& buff);
-    std::string dump();
-    bool get();
+    explicit BsonBool(vect_it& it);
+    std::string dump() const override;
+    bool get() const;
 private:
     bool _val;
 };
 
 class BsonInt32: public BsonObj{
 public:
-    BsonInt32(vect_it& buff);
-    std::string dump();
-    int32_t get();
+    explicit BsonInt32(vect_it& it);
+    std::string dump() const override;
+    int32_t get() const;
 private:
     int32_t _val;
 };
 
 class BsonInt64: public BsonObj{
 public:
-    BsonInt64(vect_it& buff, BSON_TYPE t=BSON_TYPE::INT64);
-    std::string dump();
-    int64_t get();
+    explicit BsonInt64(vect_it& it, Bson_type t=Bson_type::INT64);
+    std::string dump() const override;
+    int64_t get() const;
 private:
     int64_t _val;
 };
 
 class BsonTime: public BsonInt64{
 public:
-    BsonTime(vect_it& buff):BsonInt64(buff, BSON_TYPE::TIME){};
+    explicit BsonTime(vect_it& it):BsonInt64(it, Bson_type::TIME){}
 };
 
 
 class BsonUint64: public BsonObj{
 public:
-    BsonUint64(vect_it& buff);
-    std::string dump();
-    uint64_t get();
+    explicit BsonUint64(vect_it& it);
+    std::string dump() const override;
+    uint64_t get() const;
 private:
     uint64_t _val;
 };
 
 class BsonDouble: public BsonObj{
 public:
-    BsonDouble(vect_it& buff);
-    std::string dump();
-    double get();
+    explicit BsonDouble(vect_it& it);
+    std::string dump() const override;
+    double get() const;
 private:
     double _val;
 };
 
 class BsonString: public BsonObj{
 public:
-    BsonString(vect_it& buff, BSON_TYPE type = BSON_TYPE::STRING);
-    std::string dump();
-    std::string get();
+    explicit BsonString(vect_it& it, Bson_type type = Bson_type::STRING);
+    std::string dump() const override;
+    std::string get() const;
 private:
     vect_it _string_begin;
     int32_t _string_size;
@@ -150,19 +149,19 @@ private:
 
 class BsonSymbol: public BsonString{
 public:
-    BsonSymbol(vect_it& buff):BsonString(buff, BSON_TYPE::SYMBOL){}
+    explicit BsonSymbol(vect_it& it):BsonString(it, Bson_type::SYMBOL){}
 };
 
 class BsonJsCode: public BsonString{
 public:
-    BsonJsCode(vect_it& buff):BsonString(buff, BSON_TYPE::JS_CODE){}
+    explicit BsonJsCode(vect_it& it):BsonString(it, Bson_type::JS_CODE){}
 };
 
 class BsonCString: public BsonObj{
 public:
-    BsonCString(vect_it& buff);
-    std::string dump();
-    std::string get();
+    explicit BsonCString(vect_it& it);
+    std::string dump() const override;
+    std::string get() const;
 private:
     vect_it _string_begin;
     int32_t _string_size;
@@ -170,28 +169,29 @@ private:
 
 class BsonID: public BsonObj{
 public:
-    BsonID(vect_it& buff, BSON_TYPE type = BSON_TYPE::OBJ_ID);
-    std::string dump();
-    const int fixed_len = 12;
-    const std::vector<unsigned char>& get();
+    explicit BsonID(vect_it& it, Bson_type type = Bson_type::OBJ_ID);
+    std::string dump() const override;
+    const std::vector<unsigned char>& get() const;
 private:
+    static const int _fixed_len = 12;
     std::vector<unsigned char> _val;
 };
 
 class BsonDec128: public BsonID{
 public:
-    BsonDec128(vect_it& buff):BsonID(buff, BSON_TYPE::DEC128){}
+    explicit BsonDec128(vect_it& it):BsonID(it, Bson_type::DEC128){}
     //dec128 is not in cpp14
-    const int fixed_len = 16;
+private:
+    static const int _fixed_len = 16;
 };
 
 class BsonDBPointer: public BsonObj{
 public:
-    BsonDBPointer(vect_it& buff);
-    std::string dump();
+    explicit BsonDBPointer(vect_it& it);
+    std::string dump() const override;
     const int fixed_len = 12;
     const std::vector<unsigned char>& get();
-    std::string getString();
+    std::string getString() const;
 private:
     std::vector<unsigned char> _val;
     vect_it _db_begin;                 // pointer to the begining of the db string
@@ -200,11 +200,11 @@ private:
 
 class BsonBin: public BsonObj{
 public:
-    BsonBin(vect_it& buff);
-    std::string dump();
-    const std::vector<unsigned char>& get();
-    int32_t size(); //size is stored as int32_t
-    unsigned char subtype();    
+    explicit BsonBin(vect_it& it);
+    std::string dump() const override;
+    const std::vector<unsigned char>& get() const;
+    int32_t size() const; //size is stored as int32_t
+    unsigned char subtype() const;
 private:
     std::vector<unsigned char> _val;
     unsigned char _subtype;

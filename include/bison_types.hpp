@@ -1,7 +1,7 @@
 #ifndef BISON_TYPES_HPP
 #define BISON_TYPES_HPP
 
-enum class BSON_TYPE : unsigned char{
+enum class Bson_type : unsigned char{
     DOC             = 0x00,  // BSON Document. 
     DOUBLE          = 0x01,  // name double 64-bit binary floating point
     STRING          = 0x02,  // UTF-8 string String - The int32 is the number bytes in the (byte*) + 1 (for the trailing '\x00'). The (byte*) is zero or more UTF-8 encoded characters.
