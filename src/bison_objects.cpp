@@ -7,7 +7,7 @@
 #include <iomanip>
 
 std::unique_ptr<BsonObj> BsonObj::Parse(vect_it& it) {
-    Bson_type type = static_cast<Bson_type>(read<char>(it));
+    Bson_type type = static_cast<Bson_type>(read(it));
     //std::cout << "reading type 0x" << std::hex << std::setfill('0') << std::setw(2) << (int) type << std::endl;
     switch (type) {
         case Bson_type::DOC         : return nullptr; //00 indicates the end of the document
@@ -85,12 +85,12 @@ std::string BsonCString::get() const {
 }
 
 BsonDoc::BsonDoc(vect_it it, size_t it_size):
-    BsonObj(Bson_type::DOC),_has_name(false),_pos(it),_size(read<int32_t>(_pos)),_begin(_pos), _end(it+_size) {
+    BsonObj(Bson_type::DOC),_has_name(false),_pos(it),_size(read(_pos)),_begin(_pos), _end(it+_size) {
     _init(it_size);
 }
 
 BsonDoc::BsonDoc(vect_it it, Bson_type type):
-    BsonObj(it, type),_has_name(true),_pos(it),_size(read<int32_t>(_pos)),_begin(_pos), _end(it+_size){
+    BsonObj(it, type),_has_name(true),_pos(it),_size(read(_pos)),_begin(_pos), _end(it+_size){
     _init();
 }
 
@@ -198,7 +198,7 @@ std::string BsonMaxKey::dump() const {
 }
 
 BsonBool::BsonBool(vect_it& it):BsonObj(it,Bson_type::BOOL) {
-    _val = read<char>(it);
+    _val = read(it);
 }
 
 std::string BsonBool::dump() const {
@@ -216,7 +216,7 @@ bool BsonBool::get() const {
 }
 
 BsonInt32::BsonInt32(vect_it& it):BsonObj(it, Bson_type::INT32) {
-    _val = read<int32_t>(it);
+    _val = read(it);
 }
 
 std::string BsonInt32::dump() const {
@@ -228,7 +228,7 @@ int32_t BsonInt32::get() const {
 }
 
 BsonInt64::BsonInt64(vect_it& it, Bson_type t):BsonObj(it, t){
-    _val = read<int64_t>(it);
+    _val = read(it);
 }
 
 std::string BsonInt64::dump() const {
@@ -240,7 +240,7 @@ int64_t BsonInt64::get() const {
 }
 
 BsonUint64::BsonUint64(vect_it& it):BsonObj(it, Bson_type::UINT64){
-    _val = read<uint64_t>(it);
+    _val = read(it);
 }
 
 std::string BsonUint64::dump() const {
@@ -261,7 +261,7 @@ uint64_t BsonUint64::get() const {
 
 
 BsonDouble::BsonDouble(vect_it& it):BsonObj(it, Bson_type::DOUBLE){
-    _val = read<double>(it);
+    _val = read(it);
 }
 
 std::string BsonDouble::dump() const {
@@ -313,7 +313,7 @@ std::string BsonDBPointer::getString()const {
 }
 
 BsonBin::BsonBin(vect_it& it):BsonObj(it, Bson_type::BIN){
-    int32_t size = read<int32_t>(it);
+    int32_t size = read(it);
     //don't get why size is signed in spec 
     if ( size < 0 ) {
         std::cerr << "fatal binary object with negative size " 
@@ -321,7 +321,7 @@ BsonBin::BsonBin(vect_it& it):BsonObj(it, Bson_type::BIN){
         << std::endl;
         exit(1);
     }
-    _subtype = read<unsigned char>(it);
+    _subtype = read(it);
     _val = read_hex(it,size);
 }
 
@@ -348,7 +348,7 @@ unsigned char BsonBin::subtype()const {
 }
 
 BsonJsCodeWC::BsonJsCodeWC(vect_it& it):BsonObj(it, Bson_type::JS_CODE_WS){
-    _length = read<int32_t>(it);
+    _length = read(it);
     read_string(it, _code_begin, _code_size,true);
     _doc = std::make_unique<BsonDoc>(it);
 }
