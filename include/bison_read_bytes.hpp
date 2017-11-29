@@ -50,10 +50,11 @@ void read_string(vect_it &c, vect_it &init, int32_t &size, bool has_size) {
 
 std::vector<unsigned char> read_hex(vect_it &c, int size) {
     std::vector<unsigned char> vect;
+    vect.reserve(size);
     while (size > 0) {
         vect.push_back(read(c));
         size--;
     }
     return vect;
 }
-}
+} // namespace bison

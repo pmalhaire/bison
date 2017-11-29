@@ -35,5 +35,5 @@ enum class Bson_type : unsigned char {
     MIN_KEY = 0xFF,    // name Min key
     MAX_KEY = 0x7F     // name Max key
 };
-}
+} // namespace bison
 #endif // ndef BISON_TYPES_HPP

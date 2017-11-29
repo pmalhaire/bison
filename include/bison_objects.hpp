@@ -12,12 +12,11 @@ using vect_it = std::vector<char>::const_iterator;
 class BsonObj {
   public:
     BsonObj() = delete;
-    explicit BsonObj(Bson_type t)
-        : _type(t) {} // use for document (not embeded)BsonObj(Bson_type
-                      // t):_type(t){};     // use for document (not embeded)
-    explicit BsonObj(vect_it &it,
-                     Bson_type t); // compute the name at construction
-    Bson_type type() const;        // the type of the object
+    // constructor for document (not embeded)
+    explicit BsonObj(Bson_type t) : _type(t) {}
+    // compute the name at construction
+    explicit BsonObj(vect_it &it, Bson_type t);
+    Bson_type type() const; // the type of the object
     //[cpp type] get()                   function to access the object as a cpp
     // type (defined in subclasses)
     std::string

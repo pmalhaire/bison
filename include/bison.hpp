@@ -31,8 +31,9 @@ class Bson {
     Bson() = delete;
     explicit Bson(const std::vector<char> &vect)
         : _vect(vect), _pos(vect.begin()) {}
-    std::unique_ptr<BsonDoc>
-    next(); // get the current document as BsonDoc or null if there is no more
+    // get the current document as BsonDoc or nullptr if there is no more
+    std::unique_ptr<BsonDoc> next();
+
   private:
     const std::vector<char> &_vect;
     vect_it _pos;
